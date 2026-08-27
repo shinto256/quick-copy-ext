@@ -1,0 +1,30 @@
+id: req-000003
+version: '1.0'
+title: マスク表示切替機能
+status: approved
+priority: medium
+createdAt: 2026-08-27T07:45:41.465Z
+updatedAt: 2026-08-27T08:08:28.624Z
+versionHistory: []
+files:
+  description: requirements/req-000003/description.md
+  supplementary: []
+successCriteria:
+  - 切替操作から画面反映までが200ms以内に完了する
+  - 切替はワンクリック(1操作)で完了する
+  - 切替状態は拡張機能を閉じて再度開いても100%保持される(設定永続化の一致率100%)
+  - 切替操作は一覧内の全項目(100%)に一括反映される
+format:
+  type: ears
+  ears:
+    type: event-driven
+    trigger: ユーザーがマスク表示切替操作(ON/OFFトグル)を行ったとき
+    action: 一覧内の全項目の値表示をマスク表示⇔平文表示に切り替える
+    response: 切替結果を設定として保存し、拡張機能を再度開いた際も同じ表示モードを維持する
+dependencies:
+  blockedBy:
+    - req-000002
+  blocks: []
+  relatedTo: []
+estimatedComplexity: small
+estimatedHours: 6
