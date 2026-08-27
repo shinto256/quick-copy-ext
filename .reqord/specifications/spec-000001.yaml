@@ -1,0 +1,36 @@
+id: spec-000001
+requirementId: req-000001
+title: 項目登録・保存機能
+requirementVersion: '1.0'
+version: '1.0'
+status: approved
+createdAt: 2026-08-27T08:10:57.738Z
+updatedAt: 2026-08-27T08:30:01.274Z
+versionHistory: []
+files:
+  design: specifications/spec-000001/design.md
+  supplementary: []
+designValidation:
+  passed: 6
+  warnings: 0
+  errors: 0
+  rules:
+    - ruleId: arch-layer
+      status: pass
+      severity: warning
+    - ruleId: arch-dependency
+      status: pass
+      severity: warning
+    - ruleId: naming-convention
+      status: pass
+      severity: info
+    - ruleId: dep-conflict
+      status: pass
+      severity: error
+    - ruleId: design-sections
+      status: pass
+      severity: warning
+    - ruleId: test-strategy
+      status: pass
+      severity: warning
+  validatedAt: 2026-08-27T08:15:29.279Z
