@@ -1,0 +1,32 @@
+id: req-000002
+version: '1.0'
+title: 一覧表示・コピー機能(デフォルトマスク表示)
+status: approved
+priority: high
+createdAt: 2026-08-27T07:45:39.799Z
+updatedAt: 2026-08-27T08:08:11.132Z
+versionHistory: []
+files:
+  description: requirements/req-000002/description.md
+  supplementary: []
+successCriteria:
+  - マスク表示は値の文字数によらず●8文字で統一表示する(不一致率0%)
+  - コピー操作からクリップボード反映までが100ms以内に完了する
+  - 初期状態(マスク非表示モード未設定時)で100%の項目がマスク表示される
+  - コピー成功時、1秒以内に成功フィードバックが表示される
+format:
+  type: ears
+  ears:
+    type: state-driven
+    trigger: ユーザーが拡張機能のポップアップを開いたとき
+    condition: マスク非表示モードがOFF(デフォルト)の場合
+    action: 登録済み項目の名前を平文表示し、値を●でマスクして一覧表示する
+    response: コピー操作(ボタン押下)により、表示状態に関わらず値の原文をクリップボードへコピーする
+dependencies:
+  blockedBy:
+    - req-000001
+  blocks:
+    - req-000003
+  relatedTo: []
+estimatedComplexity: medium
+estimatedHours: 12
