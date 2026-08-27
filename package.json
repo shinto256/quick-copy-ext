@@ -1,0 +1,13 @@
+{
+  "name": "quick-copy-ext",
+  "version": "0.1.0",
+  "private": true,
+  "description": "登録した定型文字列をワンクリックでコピーできるChrome/Edge拡張機能",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.4"
+  }
+}

@@ -1,0 +1,15 @@
+id: quick-copy-ext
+name: quick-copy-ext
+version: 0.1.0
+language: ja
+createdAt: 2026-08-27T07:33:23.258Z
+updatedAt: 2026-08-27T07:33:23.258Z
+files:
+  product:
+    path: context/product.yaml
+    format: yaml
+  technical:
+    structured: context/technical.yaml
+  structure:
+    structured: context/structure.yaml
+  domain: []
