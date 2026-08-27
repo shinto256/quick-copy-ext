@@ -1,0 +1,36 @@
+id: spec-000004
+requirementId: req-000004
+title: グループ管理機能
+requirementVersion: '1.0'
+version: '1.0'
+status: approved
+createdAt: 2026-08-27T08:11:10.121Z
+updatedAt: 2026-08-27T08:30:37.209Z
+versionHistory: []
+files:
+  design: specifications/spec-000004/design.md
+  supplementary: []
+designValidation:
+  passed: 6
+  warnings: 0
+  errors: 0
+  rules:
+    - ruleId: arch-layer
+      status: pass
+      severity: warning
+    - ruleId: arch-dependency
+      status: pass
+      severity: warning
+    - ruleId: naming-convention
+      status: pass
+      severity: info
+    - ruleId: dep-conflict
+      status: pass
+      severity: error
+    - ruleId: design-sections
+      status: pass
+      severity: warning
+    - ruleId: test-strategy
+      status: pass
+      severity: warning
+  validatedAt: 2026-08-27T08:15:34.128Z
