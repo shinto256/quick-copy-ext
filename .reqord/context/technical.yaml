@@ -1,0 +1,24 @@
+stack:
+  platform: Chrome拡張機能 (Manifest V3)
+  browsers:
+    - Chrome
+    - Edge
+  language: JavaScript (HTML/CSS)
+  storage: chrome.storage.local
+constraints:
+  - Manifest V3準拠（Service Worker前提、Manifest V2 APIは使用不可）
+  - 登録データは端末ローカル保存のみ。他端末・他アカウント間の自動同期は対象外
+  - Chrome Web Store / Edgeアドオンストアの審査ガイドラインに準拠すること
+decisions:
+  - title: 技術スタックはVanilla JS/HTML/CSSを採用
+    rationale: ポップアップ・設定画面のみの小規模拡張のため、ビルドツールやフレームワークを導入せず開発・保守コストを最小化する
+  - title: プライバシーモードは一覧表示のマスクのみを初期スコープとする
+    rationale: PIN/パスワードによる操作ロックは認証機構の追加実装コストが大きいため初期スコープ外とし、将来検討のバックログとする
+  - title: データアクセス層はRepositoryパターンで実装する
+    rationale: storageモジュール(structure.yaml)にchrome.storage.localの読み書きを集約し、グループ機能等の追加時の影響範囲を局所化する
+  - title: ビルドツールを導入せずノービルドで配布する
+    rationale: 素のJS/HTML/CSSのままzip化してストア申請する。Vanilla JS採用の既定方針と一致し、初期セットアップコストを避ける
+  - title: Unit testを導入する(vitest + chrome API mock)
+    rationale: 各要件の成功基準が数値化されたバリデーション条件(境界値・上限件数等)を含むため、自動テストで100%の再現性を担保する
+  - title: クリップボードコピーはClipboard API単体で実装する
+    rationale: 対応ブラウザをChrome/Edge最新版に限定しているため、document.execCommandによるフォールバックは不要と判断する

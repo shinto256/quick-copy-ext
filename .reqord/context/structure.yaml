@@ -1,0 +1,12 @@
+modules:
+  - name: popup
+    description: 拡張機能アイコンクリックで開くUI。登録済み文字列の一覧表示・コピー操作・プライバシーモード切替を担当
+  - name: options
+    description: 文字列の登録・編集・削除、プライバシーモードのON/OFF設定を行う設定画面
+  - name: storage
+    description: chrome.storage.localへの読み書きを担当するデータアクセス層
+layers:
+  - name: UI層
+    description: popup / options のHTML・CSS・イベントハンドリング
+  - name: データ層
+    description: chrome.storage.local経由の永続化処理
