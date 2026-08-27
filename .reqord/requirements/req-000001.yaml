@@ -1,0 +1,31 @@
+id: req-000001
+version: '1.0'
+title: 項目登録・保存機能
+status: approved
+priority: high
+createdAt: 2026-08-27T07:45:34.441Z
+updatedAt: 2026-08-27T08:07:53.848Z
+versionHistory: []
+files:
+  description: requirements/req-000001/description.md
+  supplementary: []
+successCriteria:
+  - 保存操作から一覧への反映までが1秒以内に完了する
+  - 名前(1〜50文字)・値(1〜2000文字)の文字数バリデーションについて、範囲内入力は100%保存を許可し、範囲外入力は100%エラーとする
+  - 登録上限は500件で、501件目の保存操作は100%拒否される
+  - 名前または値が未入力の保存操作は100%エラーとなり、保存件数が0件のまま変化しない
+format:
+  type: ears
+  ears:
+    type: event-driven
+    trigger: ユーザーが拡張機能の登録フォームで名前と値を入力し保存を実行したとき
+    condition: 名前・値がともにバリデーション条件(名前1〜50文字、値1〜2000文字)を満たしている場合
+    action: 入力された項目(名前・値のペア)を端末ローカルのストレージに保存する
+    response: 保存完了後、一覧画面に新しい項目を即時反映する
+dependencies:
+  blockedBy: []
+  blocks:
+    - req-000002
+  relatedTo: []
+estimatedComplexity: medium
+estimatedHours: 16
