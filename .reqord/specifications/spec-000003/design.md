@@ -9,14 +9,15 @@
 
 ## アーキテクチャ
 
-本機能は structure.yaml の UI層(popup)とデータ層(storage)の2層構成に従う。UI層はトグル
+本機能は structure.yaml の UI層(sidepanel)とデータ層(storage)の2層構成に従う。UI層はトグル
 操作のみを持ち、永続化ロジックは持たない。データ層(storageモジュール)はRepositoryパターン
 で実装し、chrome.storage.localへの読み書きをここに集約する（technical.yamlのdecision
 「データアクセス層はRepositoryパターンで実装する」に準拠）。
 
 ## コンポーネント設計
 
-- UI層: popup（マスク表示切替トグル。structure.yamlのmodules参照）
+- UI層: sidepanel（マスク表示切替トグル。ヘッダーに常時表示し、メニューを開く操作を挟まず
+  1操作で切替が完了する。002-side-panel-ui spec参照。旧popupのUIは廃止しsidepanelに統合済み）
 - データ層: storageモジュール内の `SettingsRepository`
 - 依存方向: UI層 → データ層（一方向）
 
@@ -30,7 +31,7 @@
 ### 出力
 
 - 更新後の設定: `{ maskEnabled: boolean }`
-- popup側は更新結果を受け、一覧の全 `displayValue` を再計算し再描画する
+- sidepanel側は更新結果を受け、一覧の全 `displayValue` を再計算し再描画する
 
 ## データモデル
 
@@ -42,7 +43,7 @@ chrome.storage.local キー `settings`: `{ maskEnabled: boolean }`（デフォ�
 1. ユーザーがトグルUIを操作する
 2. `onToggleMask()` が現在の `maskEnabled` を反転し `SettingsRepository.setMaskEnabled()` を呼ぶ
 3. Repositoryが `chrome.storage.local.set` で永続化する
-4. popup側が新しい `maskEnabled` をstateに反映し、一覧の全項目表示を200ms以内に再計算する
+4. sidepanel側が新しい `maskEnabled` をstateに反映し、一覧の全項目表示を200ms以内に再計算する
 
 ## エラーハンドリング
 
