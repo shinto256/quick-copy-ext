@@ -4,19 +4,20 @@
 
 ## 設計概要
 
-popup/optionsから呼び出す `ItemRepository`(storageモジュール)を実装し、chrome.storage.localへの
+sidepanelから呼び出す `ItemRepository`(storageモジュール)を実装し、chrome.storage.localへの
 項目登録・保存を担う。バリデーション(文字数・登録上限500件)はRepository層で実施する。
 
 ## アーキテクチャ
 
-本機能は structure.yaml の UI層(popup/options)とデータ層(storage)の2層構成に従う。UI層は
+本機能は structure.yaml の UI層(sidepanel)とデータ層(storage)の2層構成に従う。UI層は
 イベントハンドリング・表示ロジックのみを持ち、永続化ロジックは持たない。データ層(storage
 モジュール)はRepositoryパターンで実装し、chrome.storage.localへのアクセスをここに集約する
 （technical.yamlのdecision「データアクセス層はRepositoryパターンで実装する」に準拠）。
 
 ## コンポーネント設計
 
-- UI層: popup（新規登録フォーム。structure.yamlのmodules参照）
+- UI層: sidepanel（新規登録・編集用の入力UI。パネル内で画面遷移なく完結する。002-side-panel-ui
+  spec参照。旧popup/optionsのUIは廃止しsidepanelに統合済み）
 - データ層: storageモジュール内の `ItemRepository`（本spec インターフェース設計を参照）
 - 依存方向: UI層 → データ層（一方向。データ層からUI層への依存は発生しない）
 
@@ -46,7 +47,7 @@ chrome.storage.local キー `items`: `Item[]`（本要件で新規作成する�
 1. UIから name, value, (groupId) を受け取り `ItemRepository.create()` を呼ぶ
 2. Repository内でバリデーション: name長・value長・現在件数(<500)をチェックする
 3. 検証OKならID採番し items に追加、`chrome.storage.local.set` で永続化する
-4. 呼び出し元(popup)へ作成結果を返し、一覧を再描画する
+4. 呼び出し元(sidepanel)へ作成結果を返し、一覧を再描画する
 
 ## エラーハンドリング
 
