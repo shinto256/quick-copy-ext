@@ -3,9 +3,9 @@ requirementId: req-000004
 title: グループ管理機能
 requirementVersion: '1.0'
 version: '1.0'
-status: approved
+status: draft
 createdAt: 2026-08-27T08:11:10.121Z
-updatedAt: 2026-08-27T08:30:37.209Z
+updatedAt: 2026-08-28T06:38:44.570Z
 versionHistory: []
 files:
   design: specifications/spec-000004/design.md
