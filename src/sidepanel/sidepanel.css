@@ -1,0 +1,282 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, "Segoe UI", sans-serif;
+  color: #202124;
+  background: #ffffff;
+}
+
+.header {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #dadce0;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.mask-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.icon-button {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.icon-button:hover {
+  background: #f1f3f4;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+}
+
+.tab-rename-input {
+  width: 100px;
+  padding: 5px 8px;
+  border: 1px solid #1a73e8;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+.tab-menu {
+  display: flex;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.tab-menu button {
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.tab-button {
+  flex: none;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 16px;
+  background: #f1f3f4;
+  color: #5f6368;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-button.active {
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 600;
+}
+
+.tab-add {
+  flex: none;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: #5f6368;
+  cursor: pointer;
+}
+
+.tab-menu-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 14px;
+  color: inherit;
+}
+
+.list-area {
+  padding: 12px;
+}
+
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.item-card-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.item-name {
+  font-weight: 700;
+  display: block;
+}
+
+.item-value {
+  color: #5f6368;
+  font-size: 13px;
+  display: block;
+  word-break: break-all;
+}
+
+.item-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.copy-button {
+  padding: 6px 12px;
+  border: 1px solid #1a73e8;
+  color: #1a73e8;
+  background: #ffffff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.kebab-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 6px;
+}
+
+.item-menu {
+  display: flex;
+  gap: 4px;
+}
+
+.item-menu button {
+  font-size: 11px;
+  padding: 3px 8px;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.empty-state {
+  color: #5f6368;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.copy-status {
+  min-height: 1.2em;
+  text-align: center;
+  font-size: 12px;
+  color: #188038;
+  margin: 0;
+}
+
+.error {
+  color: #c5221f;
+  font-size: 12px;
+  padding: 4px 12px;
+}
+
+.form-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 12px;
+}
+
+.item-form {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  padding: 6px 8px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #dadce0;
+  background: #ffffff;
+}
+
+#item-save {
+  background: #1a73e8;
+  border-color: #1a73e8;
+  color: #ffffff;
+}
