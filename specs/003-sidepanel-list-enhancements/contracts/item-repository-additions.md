@@ -50,3 +50,18 @@ removeMany(ids: string[]): Promise<void>
 - 複数IDを指定して削除すると、該当項目のみが`list()`の結果から消え、未指定の項目は残る。
 - 存在しないIDを含めて呼び出してもエラーにならず、他の項目は影響を受けない。
 - 空配列を指定した場合、`items`に変化がないこと。
+
+## removeByGroup(groupId)（req-000004 v1.1対応・実装済み）
+
+```text
+removeByGroup(groupId: string | null): Promise<void>
+```
+
+グループ削除時のカスケード削除（req-000004 v1.1: グループ削除時は所属項目もまとめて削除する）
+のために`removeMany()`を内部利用する関数。指定した`groupId`に一致する項目をすべて`removeMany()`
+経由で削除する。`groupRepository.remove()`から呼び出される。本specの計画・タスク作成後に、
+req-000004の仕様変更に対応するため先行実装済み。
+
+### テスト観点
+
+- 指定グループに属する項目のみが削除され、他グループ・未分類の項目は残ること。

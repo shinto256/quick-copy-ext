@@ -1,6 +1,6 @@
 import { getItem, setItem } from "./storageClient.js";
 import { ValidationError, NotFoundError } from "./errors.js";
-import { reassignGroup } from "./itemRepository.js";
+import { removeByGroup } from "./itemRepository.js";
 
 const KEY = "groups";
 const MAX_GROUPS = 50;
@@ -47,7 +47,7 @@ export async function remove(id) {
   if (index === -1) {
     throw new NotFoundError(id);
   }
-  await reassignGroup(id, null);
+  await removeByGroup(id);
   const nextGroups = [...groups];
   nextGroups.splice(index, 1);
   await setItem(KEY, nextGroups);

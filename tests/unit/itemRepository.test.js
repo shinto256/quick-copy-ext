@@ -93,3 +93,42 @@ describe("ItemRepository.update / remove (T008)", () => {
     await expect(ItemRepository.remove("no-such-id")).rejects.toThrow(NotFoundError);
   });
 });
+
+describe("ItemRepository.removeMany / removeByGroup (req-000004 v1.1)", () => {
+  it("removes only the specified items and leaves the rest untouched", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v" });
+    const b = await ItemRepository.create({ name: "b", value: "v" });
+    const c = await ItemRepository.create({ name: "c", value: "v" });
+
+    await ItemRepository.removeMany([a.id, b.id]);
+
+    const items = await ItemRepository.list();
+    expect(items).toHaveLength(1);
+    expect(items[0].id).toBe(c.id);
+  });
+
+  it("ignores ids that do not exist without throwing", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v" });
+    await ItemRepository.removeMany(["no-such-id", a.id]);
+    expect(await ItemRepository.list()).toHaveLength(0);
+  });
+
+  it("leaves items unchanged when given an empty array", async () => {
+    await ItemRepository.create({ name: "a", value: "v" });
+    await ItemRepository.removeMany([]);
+    expect(await ItemRepository.list()).toHaveLength(1);
+  });
+
+  it("removeByGroup deletes only items belonging to the given group", async () => {
+    const inGroup = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const otherGroup = await ItemRepository.create({ name: "b", value: "v", groupId: "g2" });
+    const unassigned = await ItemRepository.create({ name: "c", value: "v" });
+
+    await ItemRepository.removeByGroup("g1");
+
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === inGroup.id)).toBeUndefined();
+    expect(items.find((i) => i.id === otherGroup.id)).toBeDefined();
+    expect(items.find((i) => i.id === unassigned.id)).toBeDefined();
+  });
+});

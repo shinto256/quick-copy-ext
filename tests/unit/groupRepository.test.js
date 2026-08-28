@@ -37,8 +37,8 @@ describe("GroupRepository.create - boundary validation (T022)", () => {
   });
 });
 
-describe("GroupRepository.delete - reassigns items to unassigned (T023)", () => {
-  it("sets groupId to null for all items that belonged to the deleted group", async () => {
+describe("GroupRepository.delete - cascades to items in the group (req-000004 v1.1)", () => {
+  it("deletes all items that belonged to the deleted group", async () => {
     const group = await GroupRepository.create("英語住所");
     const itemA = await ItemRepository.create({
       name: "住所A",
@@ -55,9 +55,22 @@ describe("GroupRepository.delete - reassigns items to unassigned (T023)", () => 
     await GroupRepository.remove(group.id);
 
     const items = await ItemRepository.list();
-    expect(items.find((i) => i.id === itemA.id).groupId).toBeNull();
-    expect(items.find((i) => i.id === itemB.id).groupId).toBeNull();
-    expect(items.find((i) => i.id === other.id).groupId).toBeNull();
+    expect(items.find((i) => i.id === itemA.id)).toBeUndefined();
+    expect(items.find((i) => i.id === itemB.id)).toBeUndefined();
+    expect(items.find((i) => i.id === other.id)).toBeDefined();
     expect(await GroupRepository.list()).toHaveLength(0);
+  });
+
+  it("does not delete items when a group is unaffected by another group's deletion", async () => {
+    const groupA = await GroupRepository.create("グループA");
+    const groupB = await GroupRepository.create("グループB");
+    const itemInA = await ItemRepository.create({ name: "項目A", value: "v", groupId: groupA.id });
+    const itemInB = await ItemRepository.create({ name: "項目B", value: "v", groupId: groupB.id });
+
+    await GroupRepository.remove(groupA.id);
+
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === itemInA.id)).toBeUndefined();
+    expect(items.find((i) => i.id === itemInB.id)).toEqual(itemInB);
   });
 });

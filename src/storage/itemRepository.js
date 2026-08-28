@@ -74,17 +74,17 @@ export async function remove(id) {
   await setItem(KEY, nextItems);
 }
 
-export async function reassignGroup(groupId, toGroupId) {
+export async function removeMany(ids) {
+  const idsToRemove = new Set(ids);
   const items = await list();
-  let changed = false;
-  const nextItems = items.map((item) => {
-    if (item.groupId !== groupId) {
-      return item;
-    }
-    changed = true;
-    return { ...item, groupId: toGroupId, updatedAt: new Date().toISOString() };
-  });
-  if (changed) {
+  const nextItems = items.filter((item) => !idsToRemove.has(item.id));
+  if (nextItems.length !== items.length) {
     await setItem(KEY, nextItems);
   }
+}
+
+export async function removeByGroup(groupId) {
+  const items = await list();
+  const idsToRemove = items.filter((item) => item.groupId === groupId).map((item) => item.id);
+  await removeMany(idsToRemove);
 }

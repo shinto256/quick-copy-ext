@@ -412,7 +412,7 @@ async function submitRenameGroup(group, name) {
 async function deleteGroup(group) {
   openTabMenuGroupId = null;
   const confirmed = window.confirm(
-    `グループ「${group.name}」を削除しますか？所属する項目は未分類になります。`
+    `グループ「${group.name}」を削除しますか？所属する項目もすべて削除されます。この操作は取り消せません。`
   );
   if (!confirmed) {
     await renderTabs();
