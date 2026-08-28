@@ -2,11 +2,17 @@ id: spec-000003
 requirementId: req-000003
 title: マスク表示切替機能
 requirementVersion: '1.0'
-version: '1.0'
-status: approved
+version: '1.1'
+status: draft
 createdAt: 2026-08-27T08:11:08.365Z
-updatedAt: 2026-08-27T08:30:24.629Z
-versionHistory: []
+updatedAt: 2026-08-28T05:31:41.479Z
+versionHistory:
+  - version: '1.1'
+    status: approved
+    changedAt: 2026-08-28T05:30:26.778Z
+    summary: design.md updated
+    approvedAt: 2026-08-28T05:30:26.778Z
+    approvedBy: []
 files:
   design: specifications/spec-000003/design.md
   supplementary: []
