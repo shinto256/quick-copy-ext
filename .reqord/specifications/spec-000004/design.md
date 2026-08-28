@@ -10,14 +10,17 @@
 
 ## アーキテクチャ
 
-本機能は structure.yaml の UI層(popup/options)とデータ層(storage)の2層構成に従う。UI層は
-グループ選択・絞り込み操作のみを持ち、永続化ロジックは持たない。データ層(storageモジュール)
-はRepositoryパターンで実装し、chrome.storage.localへの読み書きをここに集約する
-（technical.yamlのdecision「データアクセス層はRepositoryパターンで実装する」に準拠）。
+本機能は structure.yaml の UI層(sidepanel)とデータ層(storage)の2層構成に従う。UI層は
+グループ選択・絞り込み・作成・編集・削除の各操作のみを持ち、永続化ロジックは持たない。
+データ層(storageモジュール)はRepositoryパターンで実装し、chrome.storage.localへの読み書き
+をここに集約する（technical.yamlのdecision「データアクセス層はRepositoryパターンで実装する」
+に準拠）。
 
 ## コンポーネント設計
 
-- UI層: popup（グループ絞り込み表示）/ options（グループ作成・編集・削除）
+- UI層: sidepanel（グループをタブとして表示・絞り込み。タブからの新規作成、タブのケバブ
+  メニューからの名称編集・削除まで、すべて同一パネル内で画面遷移なく完結する。
+  002-side-panel-ui spec参照。旧popup/optionsのUIは廃止しsidepanelに統合済み）
 - データ層: storageモジュール内の `GroupRepository` / `ItemRepository`
 - 依存方向: UI層 → データ層（一方向）
 
