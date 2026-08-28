@@ -2,11 +2,15 @@ id: spec-000001
 requirementId: req-000001
 title: 項目登録・保存機能
 requirementVersion: '1.0'
-version: '1.0'
-status: draft
+version: '1.1'
+status: approved
 createdAt: 2026-08-27T08:10:57.738Z
-updatedAt: 2026-08-28T06:38:03.156Z
-versionHistory: []
+updatedAt: 2026-08-28T06:40:45.419Z
+versionHistory:
+  - version: '1.1'
+    status: draft
+    changedAt: 2026-08-28T06:40:31.196Z
+    summary: design.md updated
 files:
   design: specifications/spec-000001/design.md
   supplementary: []
