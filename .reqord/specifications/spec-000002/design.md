@@ -4,20 +4,21 @@
 
 ## 設計概要
 
-`ItemRepository.list()` で取得した項目をpopupのUIで一覧表示する。名前は常に平文表示、値は
+`ItemRepository.list()` で取得した項目をsidepanelのUIで一覧表示する。名前は常に平文表示、値は
 `SettingsRepository` の `maskEnabled` に応じてマスク／平文を切り替える。コピーボタン押下で
 Clipboard APIにより値の原文をコピーする。
 
 ## アーキテクチャ
 
-本機能は structure.yaml の UI層(popup)とデータ層(storage)の2層構成に従う。UI層は表示・
+本機能は structure.yaml の UI層(sidepanel)とデータ層(storage)の2層構成に従う。UI層は表示・
 コピー操作のみを持ち、永続化ロジックは持たない。データ層(storageモジュール)はRepository
 パターンで実装し、chrome.storage.localへの読み取りをここに集約する（technical.yamlの
 decision「データアクセス層はRepositoryパターンで実装する」に準拠）。
 
 ## コンポーネント設計
 
-- UI層: popup（一覧表示・コピー操作。structure.yamlのmodules参照）
+- UI層: sidepanel（グループタブ+カード形式の一覧表示・コピー操作。ブラウザに常駐するパネル
+  として表示する。002-side-panel-ui spec参照。旧popupのUIは廃止しsidepanelに統合済み）
 - データ層: storageモジュール内の `ItemRepository` / `SettingsRepository`
 - 依存方向: UI層 → データ層（一方向）
 
@@ -40,7 +41,7 @@ decision「データアクセス層はRepositoryパターンで実装する」�
 
 ## 処理フロー
 
-1. popup起動時、`ItemRepository.list()` と `SettingsRepository.get()` を並行取得する
+1. sidepanel起動時、`ItemRepository.list()` と `SettingsRepository.get()` を並行取得する
 2. `maskEnabled === true` の場合、各項目の value を固定8文字「●●●●●●●●」に置換して表示する。
    `false` の場合は平文表示する
 3. コピーボタン押下時、対象itemのvalue(原文)を `navigator.clipboard.writeText()` に渡す
