@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quick Copy</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-row">
+        <input
+          type="search"
+          id="search-input"
+          class="search-input"
+          placeholder="項目名で検索"
+          aria-label="項目名で検索"
+        />
+        <label class="mask-toggle">
+          <input type="checkbox" id="mask-toggle" />
+          <span>マスクを解除する</span>
+        </label>
+        <button type="button" id="add-item-button" class="icon-button" aria-label="項目を追加" title="項目を追加">
+          ✎
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs" aria-label="グループタブ"></nav>
+
+    <div id="group-error" class="error" role="alert" hidden></div>
+
+    <main class="list-area">
+      <ul id="item-list" class="item-list"></ul>
+      <p id="empty-state" class="empty-state" hidden>登録済みの項目はありません。</p>
+    </main>
+
+    <p id="copy-status" class="copy-status" role="status"></p>
+
+    <div id="item-form-overlay" class="form-overlay" hidden>
+      <form id="item-form" class="item-form">
+        <input type="hidden" id="item-id" value="" />
+        <div class="field">
+          <label for="item-name">名前（1〜50文字）</label>
+          <input type="text" id="item-name" maxlength="50" required />
+        </div>
+        <div class="field">
+          <label for="item-value">値（1〜2000文字、複数行可）</label>
+          <textarea id="item-value" maxlength="2000" rows="5" required></textarea>
+        </div>
+        <div class="field">
+          <label for="item-group">グループ</label>
+          <select id="item-group">
+            <option value="">未分類</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button type="submit" id="item-save">保存</button>
+          <button type="button" id="item-cancel">キャンセル</button>
+        </div>
+        <p id="item-error" class="error" role="alert" hidden></p>
+      </form>
+    </div>
+
+    <script type="module" src="sidepanel.js"></script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDisplayValue, MASK_TEXT } from "../../src/popup/maskDisplay.js";
+import { formatDisplayValue, MASK_TEXT } from "../../src/sidepanel/maskDisplay.js";
 
 describe("formatDisplayValue - mask display logic (T014)", () => {
   it("returns a fixed-length mask regardless of value length when masking is enabled", () => {
