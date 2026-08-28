@@ -1,0 +1,21 @@
+id: req-000007
+version: '1.0'
+title: 項目一括削除機能
+status: draft
+priority: medium
+createdAt: 2026-08-28T07:14:17.500Z
+updatedAt: 2026-08-28T07:15:03.840Z
+versionHistory: []
+files:
+  description: requirements/req-000007/description.md
+  supplementary: []
+successCriteria: []
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []

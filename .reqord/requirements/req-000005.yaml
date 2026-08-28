@@ -1,0 +1,21 @@
+id: req-000005
+version: '1.0'
+title: 項目並び替え機能
+status: draft
+priority: medium
+createdAt: 2026-08-28T07:14:15.915Z
+updatedAt: 2026-08-28T07:15:02.237Z
+versionHistory: []
+files:
+  description: requirements/req-000005/description.md
+  supplementary: []
+successCriteria: []
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []
