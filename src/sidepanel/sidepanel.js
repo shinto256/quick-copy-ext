@@ -137,17 +137,25 @@ function createItemCard(item, maskEnabled) {
   }
 
   if (!searchTerm && !selectionMode) {
-    li.draggable = true;
-    li.addEventListener("dragstart", (event) => {
+    const dragHandle = document.createElement("button");
+    dragHandle.type = "button";
+    dragHandle.className = "drag-handle";
+    dragHandle.draggable = true;
+    dragHandle.textContent = "☰";
+    dragHandle.setAttribute("aria-label", `${item.name}をドラッグして並び替え`);
+    dragHandle.addEventListener("click", (event) => event.stopPropagation());
+    dragHandle.addEventListener("dragstart", (event) => {
       draggingItemId = item.id;
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("text/plain", item.id);
       li.classList.add("dragging");
     });
-    li.addEventListener("dragend", () => {
+    dragHandle.addEventListener("dragend", () => {
       draggingItemId = null;
       li.classList.remove("dragging");
     });
+    li.appendChild(dragHandle);
+
     li.addEventListener("dragover", (event) => {
       event.preventDefault();
       event.dataTransfer.dropEffect = "move";

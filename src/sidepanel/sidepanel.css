@@ -127,6 +127,10 @@ body {
   gap: 2px;
 }
 
+.more-menu[hidden] {
+  display: none;
+}
+
 .more-menu-section {
   display: flex;
   flex-direction: column;
@@ -259,6 +263,10 @@ body {
   font-size: 13px;
 }
 
+.selection-toolbar[hidden] {
+  display: none;
+}
+
 .selection-toolbar-actions {
   display: flex;
   gap: 8px;
@@ -315,8 +323,18 @@ body {
   gap: 12px;
 }
 
-.item-card[draggable="true"] {
+.drag-handle {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  padding: 4px 6px;
   cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
 }
 
 .item-card.dragging {
