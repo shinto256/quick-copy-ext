@@ -22,12 +22,30 @@
         <button type="button" id="add-item-button" class="icon-button" aria-label="項目を追加" title="項目を追加">
           ✎
         </button>
+        <div class="more-menu-wrapper">
+          <button type="button" id="more-menu-button" class="icon-button" aria-label="その他のメニュー" title="その他のメニュー">
+            ⋮
+          </button>
+          <div id="more-menu" class="more-menu" hidden></div>
+        </div>
       </div>
     </header>
 
     <nav class="tabs" id="tabs" aria-label="グループタブ"></nav>
 
     <div id="group-error" class="error" role="alert" hidden></div>
+
+    <div id="selection-toolbar" class="selection-toolbar" hidden>
+      <span id="selection-count">0件選択中</span>
+      <div class="selection-toolbar-actions">
+        <button type="button" id="selection-delete-button" class="selection-delete-button" disabled>
+          削除
+        </button>
+        <button type="button" id="selection-cancel-button" class="selection-cancel-button">
+          キャンセル
+        </button>
+      </div>
+    </div>
 
     <main class="list-area">
       <ul id="item-list" class="item-list"></ul>
