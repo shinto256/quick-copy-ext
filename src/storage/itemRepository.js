@@ -50,6 +50,7 @@ export async function update(id, patch) {
   if (patch.name !== undefined || patch.value !== undefined) {
     validate(name, value);
   }
+  const groupChanged = patch.groupId !== undefined && patch.groupId !== current.groupId;
   const updated = {
     ...current,
     name,
@@ -57,8 +58,15 @@ export async function update(id, patch) {
     groupId: patch.groupId !== undefined ? patch.groupId : current.groupId,
     updatedAt: new Date().toISOString(),
   };
+
   const nextItems = [...items];
-  nextItems[index] = updated;
+  if (groupChanged) {
+    // グループ変更時は変更後のグループの末尾に配置する(FR-005)。
+    nextItems.splice(index, 1);
+    nextItems.push(updated);
+  } else {
+    nextItems[index] = updated;
+  }
   await setItem(KEY, nextItems);
   return updated;
 }
@@ -87,4 +95,28 @@ export async function removeByGroup(groupId) {
   const items = await list();
   const idsToRemove = items.filter((item) => item.groupId === groupId).map((item) => item.id);
   await removeMany(idsToRemove);
+}
+
+export async function reorderGroup(groupId, orderedIds) {
+  const items = await list();
+  const currentIds = items.filter((item) => item.groupId === groupId).map((item) => item.id);
+  const currentIdSet = new Set(currentIds);
+  const isValid =
+    orderedIds.length === currentIds.length &&
+    new Set(orderedIds).size === orderedIds.length &&
+    orderedIds.every((id) => currentIdSet.has(id));
+  if (!isValid) {
+    throw new ValidationError(
+      "orderedIds",
+      "orderedIds must exactly match the items currently in the group",
+    );
+  }
+
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+  const queue = [...orderedIds];
+  const nextItems = items.map((item) =>
+    item.groupId === groupId ? itemsById.get(queue.shift()) : item,
+  );
+  await setItem(KEY, nextItems);
+  return nextItems;
 }

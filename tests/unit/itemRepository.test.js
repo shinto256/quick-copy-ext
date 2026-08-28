@@ -132,3 +132,64 @@ describe("ItemRepository.removeMany / removeByGroup (req-000004 v1.1)", () => {
     expect(items.find((i) => i.id === unassigned.id)).toBeDefined();
   });
 });
+
+describe("ItemRepository.reorderGroup (req-000005)", () => {
+  it("reverses the order of items within the same group", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g1" });
+    const c = await ItemRepository.create({ name: "c", value: "v", groupId: "g1" });
+
+    await ItemRepository.reorderGroup("g1", [c.id, b.id, a.id]);
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toEqual([c.id, b.id, a.id]);
+  });
+
+  it("does not affect the relative order of items in other groups", async () => {
+    const a1 = await ItemRepository.create({ name: "a1", value: "v", groupId: "g1" });
+    const b1 = await ItemRepository.create({ name: "b1", value: "v", groupId: "g2" });
+    const a2 = await ItemRepository.create({ name: "a2", value: "v", groupId: "g1" });
+    const b2 = await ItemRepository.create({ name: "b2", value: "v", groupId: "g2" });
+
+    await ItemRepository.reorderGroup("g1", [a2.id, a1.id]);
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toEqual([a2.id, b1.id, a1.id, b2.id]);
+  });
+
+  it("throws ValidationError when orderedIds does not match the group's item set", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    await ItemRepository.create({ name: "b", value: "v", groupId: "g1" });
+
+    await expect(ItemRepository.reorderGroup("g1", [a.id])).rejects.toThrow(ValidationError);
+    await expect(ItemRepository.reorderGroup("g1", ["no-such-id"])).rejects.toThrow(
+      ValidationError,
+    );
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toContain(a.id);
+  });
+});
+
+describe("ItemRepository.update - repositions item on group change (req-000005 / FR-005)", () => {
+  it("moves the item to the end of the array when its groupId changes", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g2" });
+    const c = await ItemRepository.create({ name: "c", value: "v", groupId: "g2" });
+
+    await ItemRepository.update(a.id, { groupId: "g2" });
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toEqual([b.id, c.id, a.id]);
+  });
+
+  it("does not reposition the item when groupId is unchanged", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g1" });
+
+    await ItemRepository.update(a.id, { name: "a-renamed", groupId: "g1" });
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toEqual([a.id, b.id]);
+  });
+});

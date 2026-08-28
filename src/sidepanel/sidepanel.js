@@ -21,6 +21,12 @@ const valueField = document.getElementById("item-value");
 const groupField = document.getElementById("item-group");
 const cancelButton = document.getElementById("item-cancel");
 const itemErrorEl = document.getElementById("item-error");
+const moreMenuButton = document.getElementById("more-menu-button");
+const moreMenuEl = document.getElementById("more-menu");
+const selectionToolbarEl = document.getElementById("selection-toolbar");
+const selectionCountEl = document.getElementById("selection-count");
+const selectionDeleteButton = document.getElementById("selection-delete-button");
+const selectionCancelButton = document.getElementById("selection-cancel-button");
 
 // 画面内一時状態（chrome.storage.localには保存しない。data-model.md参照）
 let selectedTabId = UNASSIGNED_TAB_ID;
@@ -33,6 +39,24 @@ let openTabMenuGroupId = null;
 let openItemMenuId = null;
 let creatingGroup = false;
 let renamingGroupId = null;
+let moreMenuOpen = false;
+let draggingItemId = null;
+let selectionMode = false;
+let selectedItemIds = new Set();
+let currentTheme = "auto";
+
+function currentGroupId() {
+  return selectedTabId === UNASSIGNED_TAB_ID ? null : selectedTabId;
+}
+
+function getVisibleItemIds() {
+  return Array.from(listEl.querySelectorAll(".item-card")).map((li) => li.dataset.itemId);
+}
+
+async function persistReorder(orderedIds) {
+  await ItemRepository.reorderGroup(currentGroupId(), orderedIds);
+  await renderList();
+}
 
 let copyStatusTimer = null;
 
@@ -93,6 +117,72 @@ async function renderList() {
 function createItemCard(item, maskEnabled) {
   const li = document.createElement("li");
   li.className = "item-card";
+  li.dataset.itemId = item.id;
+
+  if (selectionMode) {
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.className = "item-checkbox";
+    checkbox.checked = selectedItemIds.has(item.id);
+    checkbox.setAttribute("aria-label", `${item.name}を選択`);
+    checkbox.addEventListener("change", () => {
+      if (checkbox.checked) {
+        selectedItemIds.add(item.id);
+      } else {
+        selectedItemIds.delete(item.id);
+      }
+      updateSelectionToolbar();
+    });
+    li.appendChild(checkbox);
+  }
+
+  if (!searchTerm && !selectionMode) {
+    const dragHandle = document.createElement("button");
+    dragHandle.type = "button";
+    dragHandle.className = "drag-handle";
+    dragHandle.draggable = true;
+    dragHandle.textContent = "☰";
+    dragHandle.setAttribute("aria-label", `${item.name}をドラッグして並び替え`);
+    dragHandle.addEventListener("click", (event) => event.stopPropagation());
+    dragHandle.addEventListener("dragstart", (event) => {
+      draggingItemId = item.id;
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", item.id);
+      li.classList.add("dragging");
+    });
+    dragHandle.addEventListener("dragend", () => {
+      draggingItemId = null;
+      li.classList.remove("dragging");
+    });
+    li.appendChild(dragHandle);
+
+    li.addEventListener("dragover", (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = "move";
+    });
+    li.addEventListener("dragenter", (event) => {
+      event.preventDefault();
+      if (draggingItemId && draggingItemId !== item.id) {
+        li.classList.add("drag-over");
+      }
+    });
+    li.addEventListener("dragleave", () => {
+      li.classList.remove("drag-over");
+    });
+    li.addEventListener("drop", async (event) => {
+      event.preventDefault();
+      li.classList.remove("drag-over");
+      const sourceId = draggingItemId;
+      draggingItemId = null;
+      if (!sourceId || sourceId === item.id) {
+        return;
+      }
+      const ids = getVisibleItemIds().filter((id) => id !== sourceId);
+      const targetIndex = ids.indexOf(item.id);
+      ids.splice(targetIndex, 0, sourceId);
+      await persistReorder(ids);
+    });
+  }
 
   const main = document.createElement("div");
   main.className = "item-card-main";
@@ -150,11 +240,38 @@ function createItemCard(item, maskEnabled) {
     deleteButton.addEventListener("click", () => deleteItem(item));
     menu.appendChild(deleteButton);
 
+    if (!searchTerm) {
+      const moveUpButton = document.createElement("button");
+      moveUpButton.type = "button";
+      moveUpButton.textContent = "上へ移動";
+      moveUpButton.addEventListener("click", () => moveItem(item, -1));
+      menu.appendChild(moveUpButton);
+
+      const moveDownButton = document.createElement("button");
+      moveDownButton.type = "button";
+      moveDownButton.textContent = "下へ移動";
+      moveDownButton.addEventListener("click", () => moveItem(item, 1));
+      menu.appendChild(moveDownButton);
+    }
+
     actions.appendChild(menu);
   }
 
   li.appendChild(actions);
   return li;
+}
+
+async function moveItem(item, offset) {
+  openItemMenuId = null;
+  const ids = getVisibleItemIds();
+  const index = ids.indexOf(item.id);
+  const targetIndex = index + offset;
+  if (index === -1 || targetIndex < 0 || targetIndex >= ids.length) {
+    await renderList();
+    return;
+  }
+  [ids[index], ids[targetIndex]] = [ids[targetIndex], ids[index]];
+  await persistReorder(ids);
 }
 
 async function deleteItem(item) {
@@ -250,6 +367,116 @@ document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden" && isFormOpen) {
     closeItemForm();
   }
+});
+
+// ---- その他メニュー(テーマ設定・選択モード開始) ----
+
+const THEME_OPTIONS = [
+  { value: "auto", label: "自動" },
+  { value: "light", label: "ライト" },
+  { value: "dark", label: "ダーク" },
+];
+
+function applyTheme(theme) {
+  if (theme === "auto") {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = theme;
+  }
+}
+
+async function selectTheme(theme) {
+  currentTheme = theme;
+  applyTheme(theme);
+  await SettingsRepository.setTheme(theme);
+  moreMenuOpen = false;
+  renderMoreMenu();
+}
+
+function renderMoreMenu() {
+  moreMenuEl.hidden = !moreMenuOpen;
+  moreMenuEl.innerHTML = "";
+  if (!moreMenuOpen) {
+    return;
+  }
+
+  const themeSection = document.createElement("div");
+  themeSection.className = "more-menu-section";
+
+  const themeLabel = document.createElement("span");
+  themeLabel.className = "more-menu-label";
+  themeLabel.textContent = "テーマ";
+  themeSection.appendChild(themeLabel);
+
+  for (const option of THEME_OPTIONS) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "more-menu-item" + (currentTheme === option.value ? " active" : "");
+    button.textContent = option.label;
+    button.addEventListener("click", () => selectTheme(option.value));
+    themeSection.appendChild(button);
+  }
+
+  moreMenuEl.appendChild(themeSection);
+
+  const divider = document.createElement("div");
+  divider.className = "more-menu-divider";
+  moreMenuEl.appendChild(divider);
+
+  const selectButton = document.createElement("button");
+  selectButton.type = "button";
+  selectButton.className = "more-menu-item";
+  selectButton.textContent = "選択";
+  selectButton.addEventListener("click", () => {
+    moreMenuOpen = false;
+    renderMoreMenu();
+    startSelectionMode();
+  });
+  moreMenuEl.appendChild(selectButton);
+}
+
+moreMenuButton.addEventListener("click", (event) => {
+  event.stopPropagation();
+  moreMenuOpen = !moreMenuOpen;
+  renderMoreMenu();
+});
+
+// ---- 選択モード・一括削除 ----
+
+function updateSelectionToolbar() {
+  selectionToolbarEl.hidden = !selectionMode;
+  selectionCountEl.textContent = `${selectedItemIds.size}件選択中`;
+  selectionDeleteButton.disabled = selectedItemIds.size === 0;
+}
+
+async function startSelectionMode() {
+  selectionMode = true;
+  selectedItemIds = new Set();
+  updateSelectionToolbar();
+  await renderList();
+}
+
+async function exitSelectionMode() {
+  selectionMode = false;
+  selectedItemIds = new Set();
+  updateSelectionToolbar();
+  await renderList();
+}
+
+selectionCancelButton.addEventListener("click", () => exitSelectionMode());
+
+selectionDeleteButton.addEventListener("click", async () => {
+  if (selectedItemIds.size === 0) {
+    return;
+  }
+  const confirmed = window.confirm(
+    `選択した${selectedItemIds.size}件の項目を削除しますか？この操作は取り消せません。`,
+  );
+  if (!confirmed) {
+    return;
+  }
+  await ItemRepository.removeMany([...selectedItemIds]);
+  await exitSelectionMode();
 });
 
 // ---- タブ（グループ） ----
@@ -430,6 +657,11 @@ async function selectTab(groupId) {
   selectedTabId = groupId;
   searchTerm = "";
   searchInput.value = "";
+  if (selectionMode) {
+    selectionMode = false;
+    selectedItemIds = new Set();
+    updateSelectionToolbar();
+  }
   await renderTabs();
   await renderList();
 }
@@ -443,6 +675,10 @@ document.addEventListener("click", (event) => {
     openItemMenuId = null;
     renderList();
   }
+  if (moreMenuOpen && !event.target.closest(".more-menu-wrapper")) {
+    moreMenuOpen = false;
+    renderMoreMenu();
+  }
 });
 
 // ---- マスク切替・検索 ----
@@ -450,6 +686,9 @@ document.addEventListener("click", (event) => {
 async function initMaskToggle() {
   const settings = await SettingsRepository.get();
   maskToggle.checked = !settings.maskEnabled;
+  // 表示切替のちらつきを防ぐため、一覧描画より前にテーマを反映する。
+  currentTheme = settings.theme;
+  applyTheme(currentTheme);
 }
 
 maskToggle.addEventListener("change", async () => {
@@ -459,6 +698,11 @@ maskToggle.addEventListener("change", async () => {
 
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value.trim();
+  if (selectionMode) {
+    selectionMode = false;
+    selectedItemIds = new Set();
+    updateSelectionToolbar();
+  }
   renderList();
 });
 
