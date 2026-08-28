@@ -1,10 +1,10 @@
 id: req-000004
 version: '1.0'
 title: グループ管理機能
-status: draft
+status: approved
 priority: medium
 createdAt: 2026-08-27T07:45:43.173Z
-updatedAt: 2026-08-28T07:50:16.023Z
+updatedAt: 2026-08-28T07:54:05.362Z
 versionHistory: []
 files:
   description: requirements/req-000004/description.md
