@@ -301,7 +301,20 @@ body {
 }
 
 .list-area {
+  position: relative;
   padding: 12px;
+}
+
+.drag-indicator {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  margin-top: -1.5px;
+  border-radius: 2px;
+  background: var(--color-accent);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .item-list {
@@ -321,6 +334,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
 }
 
 .drag-handle {
@@ -338,12 +352,9 @@ body {
 }
 
 .item-card.dragging {
-  opacity: 0.4;
-}
-
-.item-card.drag-over {
-  border-color: var(--color-accent);
-  border-style: dashed;
+  opacity: 0.5;
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .item-card-main {
