@@ -1,0 +1,25 @@
+id: req-000009
+version: '1.0'
+title: 選択項目グループ一括変更機能
+status: approved
+priority: medium
+createdAt: 2026-09-02T09:28:38.540Z
+updatedAt: 2026-09-02T09:31:45.319Z
+versionHistory: []
+files:
+  description: requirements/req-000009/description.md
+  supplementary: []
+successCriteria:
+  - 選択モード中は、対象カードの三点リーダーおよびコピーボタンが100%操作不可になる。
+  - 一括グループ変更操作から一覧表示への反映までが1秒以内に完了する。
+  - 選択した項目の100%のグループが変更され、未選択項目のグループ変更は0件である。
+  - 選択件数が0件の状態で一括グループ変更操作をしてもエラーにならず、変更は発生しない。
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []
