@@ -11,11 +11,12 @@
 - 項目名での検索絞り込み
 - 項目のドラッグ&ドロップ・上下移動による並び替え（グループ内、検索中は無効）
 - テーマの自動追従（OS設定）に加え、ライト/ダークの手動固定
-- 選択モードによる複数項目の一括削除
+- 選択モードによる複数項目の一括削除・グループ一括変更（選択中は各カードのコピー・個別メニュー操作を無効化）
 
 詳細な仕様は [specs/001-quick-copy-items/spec.md](specs/001-quick-copy-items/spec.md)（登録・一覧・マスク・グループの各機能要件）、
 [specs/002-side-panel-ui/spec.md](specs/002-side-panel-ui/spec.md)（サイドパネルUI刷新）、
-[specs/003-sidepanel-list-enhancements/spec.md](specs/003-sidepanel-list-enhancements/spec.md)（並び替え・テーマ手動切替・一括削除）を参照。
+[specs/003-sidepanel-list-enhancements/spec.md](specs/003-sidepanel-list-enhancements/spec.md)（並び替え・テーマ手動切替・一括削除）、
+[specs/005-bulk-group-change/spec.md](specs/005-bulk-group-change/spec.md)（選択項目グループ一括変更・選択モード中の個別操作制限）を参照。
 
 ## 開発
 
@@ -35,4 +36,5 @@ npm test
 
 動作確認の手順は [specs/001-quick-copy-items/quickstart.md](specs/001-quick-copy-items/quickstart.md)、
 [specs/002-side-panel-ui/quickstart.md](specs/002-side-panel-ui/quickstart.md)、
-[specs/003-sidepanel-list-enhancements/quickstart.md](specs/003-sidepanel-list-enhancements/quickstart.md) を参照。
+[specs/003-sidepanel-list-enhancements/quickstart.md](specs/003-sidepanel-list-enhancements/quickstart.md)、
+[specs/005-bulk-group-change/quickstart.md](specs/005-bulk-group-change/quickstart.md) を参照。

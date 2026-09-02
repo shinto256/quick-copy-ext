@@ -97,6 +97,23 @@ export async function removeByGroup(groupId) {
   await removeMany(idsToRemove);
 }
 
+export async function updateGroupMany(ids, groupId) {
+  const idSet = new Set(ids);
+  const items = await list();
+  const itemsById = new Map(items.map((item) => [item.id, item]));
+  const moved = ids
+    .filter((id) => itemsById.has(id))
+    .map((id) => ({ ...itemsById.get(id), groupId, updatedAt: new Date().toISOString() }));
+  if (moved.length === 0) {
+    return items;
+  }
+
+  const remaining = items.filter((item) => !idSet.has(item.id));
+  const nextItems = [...remaining, ...moved];
+  await setItem(KEY, nextItems);
+  return nextItems;
+}
+
 export async function reorderGroup(groupId, orderedIds) {
   const items = await list();
   const currentIds = items.filter((item) => item.groupId === groupId).map((item) => item.id);

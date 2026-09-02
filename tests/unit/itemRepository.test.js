@@ -171,6 +171,65 @@ describe("ItemRepository.reorderGroup (req-000005)", () => {
   });
 });
 
+describe("ItemRepository.updateGroupMany (req-000009)", () => {
+  it("updates groupId for all specified items across different original groups", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g2" });
+    const c = await ItemRepository.create({ name: "c", value: "v" });
+
+    await ItemRepository.updateGroupMany([a.id, b.id], "g3");
+
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === a.id).groupId).toBe("g3");
+    expect(items.find((i) => i.id === b.id).groupId).toBe("g3");
+    expect(items.find((i) => i.id === c.id).groupId).toBeNull();
+  });
+
+  it("leaves unselected items' groupId unchanged", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g1" });
+
+    await ItemRepository.updateGroupMany([a.id], "g2");
+
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === a.id).groupId).toBe("g2");
+    expect(items.find((i) => i.id === b.id).groupId).toBe("g1");
+  });
+
+  it("places updated items at the end of the target group", async () => {
+    const existing = await ItemRepository.create({ name: "existing", value: "v", groupId: "g2" });
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const b = await ItemRepository.create({ name: "b", value: "v", groupId: "g1" });
+
+    await ItemRepository.updateGroupMany([a.id, b.id], "g2");
+
+    const items = await ItemRepository.list();
+    expect(items.map((i) => i.id)).toEqual([existing.id, a.id, b.id]);
+  });
+
+  it("ignores ids that do not exist without throwing", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    await ItemRepository.updateGroupMany(["no-such-id", a.id], "g2");
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === a.id).groupId).toBe("g2");
+  });
+
+  it("changes nothing when given an empty array", async () => {
+    await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    const before = await ItemRepository.list();
+    await ItemRepository.updateGroupMany([], "g2");
+    const after = await ItemRepository.list();
+    expect(after).toEqual(before);
+  });
+
+  it("supports moving items to unassigned (null)", async () => {
+    const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
+    await ItemRepository.updateGroupMany([a.id], null);
+    const items = await ItemRepository.list();
+    expect(items.find((i) => i.id === a.id).groupId).toBeNull();
+  });
+});
+
 describe("ItemRepository.update - repositions item on group change (req-000005 / FR-005)", () => {
   it("moves the item to the end of the array when its groupId changes", async () => {
     const a = await ItemRepository.create({ name: "a", value: "v", groupId: "g1" });
