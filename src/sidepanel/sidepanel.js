@@ -40,7 +40,6 @@ let openItemMenuId = null;
 let creatingGroup = false;
 let renamingGroupId = null;
 let moreMenuOpen = false;
-let draggingItemId = null;
 let selectionMode = false;
 let selectedItemIds = new Set();
 let currentTheme = "auto";
@@ -74,10 +73,28 @@ async function copyValue(value) {
   try {
     await navigator.clipboard.writeText(value);
     showCopyStatus("コピーしました");
+    return true;
   } catch (error) {
     showCopyStatus("コピーに失敗しました");
+    return false;
   }
 }
+
+// コピー成功をボタン上で示す。アイコンと色が変わり、一定時間後に元へ戻る。
+// 連続でコピーしたときに前回のタイマーが先に発火しないよう、要素ごとに保持する。
+function markCopied(button) {
+  clearTimeout(copiedTimers.get(button));
+  button.classList.add("copied");
+  copiedTimers.set(
+    button,
+    setTimeout(() => {
+      button.classList.remove("copied");
+      copiedTimers.delete(button);
+    }, 2000),
+  );
+}
+
+const copiedTimers = new WeakMap();
 
 function showGroupError(message) {
   groupErrorEl.textContent = message;
@@ -137,51 +154,32 @@ function createItemCard(item, maskEnabled) {
   }
 
   if (!searchTerm && !selectionMode) {
-    const dragHandle = document.createElement("button");
-    dragHandle.type = "button";
-    dragHandle.className = "drag-handle";
-    dragHandle.draggable = true;
-    dragHandle.textContent = "☰";
-    dragHandle.setAttribute("aria-label", `${item.name}をドラッグして並び替え`);
-    dragHandle.addEventListener("click", (event) => event.stopPropagation());
-    dragHandle.addEventListener("dragstart", (event) => {
-      draggingItemId = item.id;
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData("text/plain", item.id);
-      li.classList.add("dragging");
-    });
-    dragHandle.addEventListener("dragend", () => {
-      draggingItemId = null;
-      li.classList.remove("dragging");
-    });
-    li.appendChild(dragHandle);
+    const reorder = document.createElement("div");
+    reorder.className = "reorder-controls";
 
-    li.addEventListener("dragover", (event) => {
-      event.preventDefault();
-      event.dataTransfer.dropEffect = "move";
+    const moveUpButton = document.createElement("button");
+    moveUpButton.type = "button";
+    moveUpButton.className = "reorder-button";
+    moveUpButton.textContent = "▲";
+    moveUpButton.setAttribute("aria-label", `${item.name}を上に移動`);
+    moveUpButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      moveItem(item, -1);
     });
-    li.addEventListener("dragenter", (event) => {
-      event.preventDefault();
-      if (draggingItemId && draggingItemId !== item.id) {
-        li.classList.add("drag-over");
-      }
+    reorder.appendChild(moveUpButton);
+
+    const moveDownButton = document.createElement("button");
+    moveDownButton.type = "button";
+    moveDownButton.className = "reorder-button";
+    moveDownButton.textContent = "▼";
+    moveDownButton.setAttribute("aria-label", `${item.name}を下に移動`);
+    moveDownButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      moveItem(item, 1);
     });
-    li.addEventListener("dragleave", () => {
-      li.classList.remove("drag-over");
-    });
-    li.addEventListener("drop", async (event) => {
-      event.preventDefault();
-      li.classList.remove("drag-over");
-      const sourceId = draggingItemId;
-      draggingItemId = null;
-      if (!sourceId || sourceId === item.id) {
-        return;
-      }
-      const ids = getVisibleItemIds().filter((id) => id !== sourceId);
-      const targetIndex = ids.indexOf(item.id);
-      ids.splice(targetIndex, 0, sourceId);
-      await persistReorder(ids);
-    });
+    reorder.appendChild(moveDownButton);
+
+    li.appendChild(reorder);
   }
 
   const main = document.createElement("div");
@@ -205,9 +203,26 @@ function createItemCard(item, maskEnabled) {
   const copyButton = document.createElement("button");
   copyButton.type = "button";
   copyButton.className = "copy-button";
-  copyButton.textContent = "コピー";
-  copyButton.addEventListener("click", () => copyValue(item.value));
+  copyButton.setAttribute("aria-label", `${item.name}をコピー`);
+  copyButton.title = "コピー";
+  copyButton.addEventListener("click", async (event) => {
+    event.stopPropagation();
+    if (await copyValue(item.value)) {
+      markCopied(copyButton);
+    }
+  });
   actions.appendChild(copyButton);
+
+  // 選択モード以外では、ボタン以外のどこを押してもコピーできるようにする。
+  // キーボード操作にはコピーボタンがあるため、カード自体はフォーカス対象にしない。
+  if (!selectionMode) {
+    li.classList.add("copyable");
+    li.addEventListener("click", async () => {
+      if (await copyValue(item.value)) {
+        markCopied(copyButton);
+      }
+    });
+  }
 
   const kebabButton = document.createElement("button");
   kebabButton.type = "button";
@@ -228,7 +243,8 @@ function createItemCard(item, maskEnabled) {
     const editButton = document.createElement("button");
     editButton.type = "button";
     editButton.textContent = "編集";
-    editButton.addEventListener("click", () => {
+    editButton.addEventListener("click", (event) => {
+      event.stopPropagation();
       openItemMenuId = null;
       openItemForm(item);
     });
@@ -237,22 +253,11 @@ function createItemCard(item, maskEnabled) {
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.textContent = "削除";
-    deleteButton.addEventListener("click", () => deleteItem(item));
+    deleteButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteItem(item);
+    });
     menu.appendChild(deleteButton);
-
-    if (!searchTerm) {
-      const moveUpButton = document.createElement("button");
-      moveUpButton.type = "button";
-      moveUpButton.textContent = "上へ移動";
-      moveUpButton.addEventListener("click", () => moveItem(item, -1));
-      menu.appendChild(moveUpButton);
-
-      const moveDownButton = document.createElement("button");
-      moveDownButton.type = "button";
-      moveDownButton.textContent = "下へ移動";
-      moveDownButton.addEventListener("click", () => moveItem(item, 1));
-      menu.appendChild(moveDownButton);
-    }
 
     actions.appendChild(menu);
   }
@@ -535,7 +540,11 @@ function createTabElement(groupId, label, group) {
 
   const button = document.createElement("button");
   button.type = "button";
-  button.className = "tab-button" + (selectedTabId === groupId ? " active" : "");
+  const isSelected = selectedTabId === groupId;
+  button.className = "tab-button" + (isSelected ? " active" : "");
+  if (isSelected) {
+    button.setAttribute("aria-current", "true");
+  }
   button.textContent = label;
   button.addEventListener("click", () => selectTab(groupId));
   wrapper.appendChild(button);
