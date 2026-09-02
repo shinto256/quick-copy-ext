@@ -38,12 +38,28 @@
     <div id="selection-toolbar" class="selection-toolbar" hidden>
       <span id="selection-count">0件選択中</span>
       <div class="selection-toolbar-actions">
+        <button
+          type="button"
+          id="selection-group-change-button"
+          class="selection-group-change-button"
+          disabled
+        >
+          グループ変更
+        </button>
         <button type="button" id="selection-delete-button" class="selection-delete-button" disabled>
           削除
         </button>
         <button type="button" id="selection-cancel-button" class="selection-cancel-button">
           キャンセル
         </button>
+      </div>
+      <div id="selection-group-change-popover" class="selection-group-change-popover" hidden>
+        <label for="selection-group-select">変更先グループ</label>
+        <select id="selection-group-select"></select>
+        <div class="actions">
+          <button type="button" id="selection-group-change-apply-button">適用</button>
+          <button type="button" id="selection-group-change-cancel-button">キャンセル</button>
+        </div>
       </div>
     </div>
 

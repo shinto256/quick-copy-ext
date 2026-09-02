@@ -178,6 +178,13 @@ body {
   background: var(--color-hover-overlay);
 }
 
+.copy-button:disabled,
+.kebab-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: transparent;
+}
+
 .more-menu-wrapper {
   position: relative;
   flex: none;
@@ -351,6 +358,7 @@ body {
 
 .selection-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
@@ -399,6 +407,63 @@ body {
   line-height: var(--line-height-oneline);
   letter-spacing: var(--letter-spacing-std);
   cursor: pointer;
+}
+
+.selection-group-change-button {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  cursor: pointer;
+}
+
+.selection-group-change-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.selection-group-change-popover {
+  display: flex;
+  flex: 1 0 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
+}
+
+.selection-group-change-popover[hidden] {
+  display: none;
+}
+
+.selection-group-change-popover select {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
+}
+
+.selection-group-change-popover .actions {
+  justify-content: flex-start;
+}
+
+#selection-group-change-apply-button {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-weight: 700;
 }
 
 .item-checkbox {

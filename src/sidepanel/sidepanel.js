@@ -27,6 +27,15 @@ const selectionToolbarEl = document.getElementById("selection-toolbar");
 const selectionCountEl = document.getElementById("selection-count");
 const selectionDeleteButton = document.getElementById("selection-delete-button");
 const selectionCancelButton = document.getElementById("selection-cancel-button");
+const selectionGroupChangeButton = document.getElementById("selection-group-change-button");
+const selectionGroupChangePopoverEl = document.getElementById("selection-group-change-popover");
+const selectionGroupSelect = document.getElementById("selection-group-select");
+const selectionGroupChangeApplyButton = document.getElementById(
+  "selection-group-change-apply-button",
+);
+const selectionGroupChangeCancelButton = document.getElementById(
+  "selection-group-change-cancel-button",
+);
 
 // 画面内一時状態（chrome.storage.localには保存しない。data-model.md参照）
 let selectedTabId = UNASSIGNED_TAB_ID;
@@ -42,6 +51,7 @@ let renamingGroupId = null;
 let moreMenuOpen = false;
 let selectionMode = false;
 let selectedItemIds = new Set();
+let groupChangePopoverOpen = false;
 let currentTheme = "auto";
 
 function currentGroupId() {
@@ -205,6 +215,7 @@ function createItemCard(item, maskEnabled) {
   copyButton.className = "copy-button";
   copyButton.setAttribute("aria-label", `${item.name}をコピー`);
   copyButton.title = "コピー";
+  copyButton.disabled = selectionMode;
   copyButton.addEventListener("click", async (event) => {
     event.stopPropagation();
     if (await copyValue(item.value)) {
@@ -229,6 +240,7 @@ function createItemCard(item, maskEnabled) {
   kebabButton.className = "kebab-button";
   kebabButton.textContent = "⋮";
   kebabButton.setAttribute("aria-label", `${item.name}の操作`);
+  kebabButton.disabled = selectionMode;
   kebabButton.addEventListener("click", (event) => {
     event.stopPropagation();
     openItemMenuId = openItemMenuId === item.id ? null : item.id;
@@ -292,16 +304,16 @@ async function deleteItem(item) {
 
 // ---- 項目登録・編集フォーム ----
 
-async function populateGroupSelect(selectedGroupId) {
+async function populateGroupSelect(selectField, selectedGroupId) {
   const groups = await GroupRepository.list();
-  groupField.innerHTML = '<option value="">未分類</option>';
+  selectField.innerHTML = '<option value="">未分類</option>';
   for (const group of groups) {
     const option = document.createElement("option");
     option.value = group.id;
     option.textContent = group.name;
-    groupField.appendChild(option);
+    selectField.appendChild(option);
   }
-  groupField.value = selectedGroupId ?? "";
+  selectField.value = selectedGroupId ?? "";
 }
 
 async function openItemForm(item = null) {
@@ -317,7 +329,7 @@ async function openItemForm(item = null) {
     : selectedTabId === UNASSIGNED_TAB_ID
       ? null
       : selectedTabId;
-  await populateGroupSelect(defaultGroupId);
+  await populateGroupSelect(groupField, defaultGroupId);
 
   formOverlay.hidden = false;
   nameField.focus();
@@ -452,11 +464,25 @@ function updateSelectionToolbar() {
   selectionToolbarEl.hidden = !selectionMode;
   selectionCountEl.textContent = `${selectedItemIds.size}件選択中`;
   selectionDeleteButton.disabled = selectedItemIds.size === 0;
+  selectionGroupChangeButton.disabled = selectedItemIds.size === 0;
+  selectionGroupChangePopoverEl.hidden = !groupChangePopoverOpen;
+}
+
+async function openGroupChangePopover() {
+  await populateGroupSelect(selectionGroupSelect, null);
+  groupChangePopoverOpen = true;
+  updateSelectionToolbar();
+}
+
+function closeGroupChangePopover() {
+  groupChangePopoverOpen = false;
+  updateSelectionToolbar();
 }
 
 async function startSelectionMode() {
   selectionMode = true;
   selectedItemIds = new Set();
+  openItemMenuId = null;
   updateSelectionToolbar();
   await renderList();
 }
@@ -464,6 +490,7 @@ async function startSelectionMode() {
 async function exitSelectionMode() {
   selectionMode = false;
   selectedItemIds = new Set();
+  groupChangePopoverOpen = false;
   updateSelectionToolbar();
   await renderList();
 }
@@ -482,6 +509,27 @@ selectionDeleteButton.addEventListener("click", async () => {
   }
   await ItemRepository.removeMany([...selectedItemIds]);
   await exitSelectionMode();
+});
+
+selectionGroupChangeButton.addEventListener("click", async () => {
+  if (selectedItemIds.size === 0) {
+    return;
+  }
+  await openGroupChangePopover();
+});
+
+selectionGroupChangeApplyButton.addEventListener("click", async () => {
+  if (selectedItemIds.size === 0) {
+    return;
+  }
+  const groupId = selectionGroupSelect.value === "" ? null : selectionGroupSelect.value;
+  await ItemRepository.updateGroupMany([...selectedItemIds], groupId);
+  await renderTabs();
+  await exitSelectionMode();
+});
+
+selectionGroupChangeCancelButton.addEventListener("click", () => {
+  closeGroupChangePopover();
 });
 
 // ---- タブ（グループ） ----
@@ -669,6 +717,7 @@ async function selectTab(groupId) {
   if (selectionMode) {
     selectionMode = false;
     selectedItemIds = new Set();
+    groupChangePopoverOpen = false;
     updateSelectionToolbar();
   }
   await renderTabs();
@@ -710,6 +759,7 @@ searchInput.addEventListener("input", () => {
   if (selectionMode) {
     selectionMode = false;
     selectedItemIds = new Set();
+    groupChangePopoverOpen = false;
     updateSelectionToolbar();
   }
   renderList();
