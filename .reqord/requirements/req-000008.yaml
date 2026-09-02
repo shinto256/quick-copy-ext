@@ -1,0 +1,26 @@
+id: req-000008
+version: '1.0'
+title: DADS準拠UIデザイン刷新
+status: approved
+priority: medium
+createdAt: 2026-09-02T03:56:58.532Z
+updatedAt: 2026-09-02T03:59:01.398Z
+versionHistory: []
+files:
+  description: requirements/req-000008/description.md
+  supplementary: []
+successCriteria:
+  - カラートークンをDADSの体系に置き換え、ライト/ダーク両テーマでテキストのコントラスト比4.5:1以上、非テキスト要素3:1以上を全箇所で満たす
+  - フォントファミリーをNoto Sans JP / Noto Sans Monoに統一し、全テキストのフォントサイズが14px以上、本文の行間が1.5倍以上である
+  - すべてのインタラクティブ要素にDADS準拠のフォーカスインジケータ(Yellow-300 + Blackの二重構造)が適用され、キーボード操作時に視認できる
+  - 既存機能(req-000001〜req-000007)の挙動が変わらず、既存の自動テストが全てパスする
+format:
+  type: user-story
+  userStory:
+    as: ''
+    iWant: ''
+    soThat: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []
