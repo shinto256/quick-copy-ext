@@ -1,54 +1,95 @@
+/* 書体・配色・余白の各値はデジタル庁デザインシステム(DADS)に準拠する。
+   出典と選定根拠: specs/004-dads-ui-refresh/research.md */
+
+@font-face {
+  font-family: "Noto Sans JP";
+  src: url("fonts/NotoSansJP-subset.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
+  /* Light theme */
   --color-bg: #ffffff;
-  --color-text: #202124;
-  --color-text-muted: #5f6368;
-  --color-border: #e0e0e0;
-  --color-border-strong: #dadce0;
   --color-surface: #ffffff;
-  --color-surface-hover: #f1f3f4;
-  --color-accent: #1a73e8;
+  --color-surface-hover: #f2f2f2;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-border: #7f7f7f;
+  --color-border-subtle: #cccccc;
+  --color-accent: #0017c1;
   --color-accent-contrast: #ffffff;
-  --color-tab-bg: #f1f3f4;
-  --color-tab-active-bg: #e8f0fe;
-  --color-success: #188038;
-  --color-error: #c5221f;
-  --color-overlay: rgba(0, 0, 0, 0.3);
+  --color-tab-bg: #f2f2f2;
+  --color-tab-active-bg: #e8f1fe;
+  --color-success: #197a4b;
+  --color-error: #ce0000;
+  --color-warning: #927200;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-hover-overlay: rgba(0, 0, 0, 0.06);
+
+  /* Typography */
+  --font-family-sans: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-size-base: 14px;
+  --line-height-body: 1.7;
+  --line-height-dense: 1.3;
+  --line-height-oneline: 1;
+  --letter-spacing-std: 0.02em;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+
+  /* Corner shapes */
+  --radius-control: 8px;
+  --radius-container: 12px;
+  --radius-full: 9999px;
+
+  /* Elevation */
+  --elevation-2: 0 2px 12px 2px rgba(0, 0, 0, 0.1), 0 1px 6px 0 rgba(0, 0, 0, 0.3);
+  --elevation-6: 0 10px 30px 6px rgba(0, 0, 0, 0.1), 0 3px 12px 0 rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-bg: #202124;
-    --color-text: #e8eaed;
-    --color-text-muted: #9aa0a6;
-    --color-border: #3c4043;
-    --color-border-strong: #5f6368;
-    --color-surface: #2d2e30;
-    --color-surface-hover: #35363a;
-    --color-accent: #8ab4f8;
-    --color-accent-contrast: #202124;
-    --color-tab-bg: #35363a;
-    --color-tab-active-bg: #33455a;
-    --color-success: #81c995;
-    --color-error: #f28b82;
-    --color-overlay: rgba(0, 0, 0, 0.6);
+    --color-bg: #1a1a1a;
+    --color-surface: #1a1a1a;
+    --color-surface-hover: #333333;
+    --color-text: #f2f2f2;
+    --color-text-muted: #b3b3b3;
+    --color-border: #949494;
+    --color-border-subtle: #4d4d4d;
+    --color-accent: #9db7f9;
+    --color-accent-contrast: #1a1a1a;
+    --color-tab-bg: #1a1a1a;
+    --color-tab-active-bg: #333333;
+    --color-success: #51b883;
+    --color-error: #ff7171;
+    --color-warning: #ffd43d;
+    --color-overlay: rgba(0, 0, 0, 0.7);
+    --color-hover-overlay: rgba(255, 255, 255, 0.1);
   }
 }
 
 :root[data-theme="dark"] {
-  --color-bg: #202124;
-  --color-text: #e8eaed;
-  --color-text-muted: #9aa0a6;
-  --color-border: #3c4043;
-  --color-border-strong: #5f6368;
-  --color-surface: #2d2e30;
-  --color-surface-hover: #35363a;
-  --color-accent: #8ab4f8;
-  --color-accent-contrast: #202124;
-  --color-tab-bg: #35363a;
-  --color-tab-active-bg: #33455a;
-  --color-success: #81c995;
-  --color-error: #f28b82;
-  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-bg: #1a1a1a;
+  --color-surface: #1a1a1a;
+  --color-surface-hover: #333333;
+  --color-text: #f2f2f2;
+  --color-text-muted: #b3b3b3;
+  --color-border: #949494;
+  --color-border-subtle: #4d4d4d;
+  --color-accent: #9db7f9;
+  --color-accent-contrast: #1a1a1a;
+  --color-tab-bg: #1a1a1a;
+  --color-tab-active-bg: #333333;
+  --color-success: #51b883;
+  --color-error: #ff7171;
+  --color-warning: #ffd43d;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+  --color-hover-overlay: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -57,28 +98,47 @@
 
 body {
   margin: 0;
-  font-family: system-ui, "Segoe UI", sans-serif;
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-std);
   color: var(--color-text);
   background: var(--color-bg);
 }
 
+/* DADS指定のフォーカス表現(Yellow-300の内側 + 黒の外周)。
+   背景色に依存せず視認できる二重構造のため、テーマによる色変更は行わない。
+   二層を box-shadow で描くことで、各要素の border-radius に沿った形になる
+   (outline と border-radius の指定では角丸が上書きされ、タブなどの形が崩れる)。
+   透明な outline は Windows のハイコントラストモードでリングを可視化するための保険。 */
+:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px #ffd43d,
+    0 0 0 4px #000000;
+}
+
 .header {
-  padding: 12px;
-  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .header-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .search-input {
   flex: 1;
-  padding: 6px 10px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 16px;
-  font-size: 13px;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
   background: var(--color-surface);
   color: var(--color-text);
 }
@@ -86,23 +146,36 @@ body {
 .mask-toggle {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
+  gap: var(--space-1);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
   white-space: nowrap;
 }
 
-.icon-button {
+/* アイコンのみのボタン。32×32の正方形に揃え、ホバー時に角丸の背景を出す。
+   記号の大きさ(18px)は視認性を優先して個別に指定する。 */
+.icon-button,
+.copy-button,
+.kebab-button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--color-text);
+  border-radius: var(--radius-control);
   font-size: 18px;
+  line-height: 1;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
 }
 
-.icon-button:hover {
-  background: var(--color-surface-hover);
+.icon-button:hover,
+.copy-button:hover,
+.kebab-button:hover {
+  background: var(--color-hover-overlay);
 }
 
 .more-menu-wrapper {
@@ -115,16 +188,16 @@ body {
   top: 100%;
   right: 0;
   z-index: 10;
-  margin-top: 4px;
-  min-width: 160px;
-  padding: 6px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 8px;
+  margin-top: var(--space-1);
+  min-width: 180px;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
   background: var(--color-surface);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--elevation-2);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-2);
 }
 
 .more-menu[hidden] {
@@ -134,26 +207,30 @@ body {
 .more-menu-section {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-2);
 }
 
 .more-menu-label {
-  font-size: 11px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
   color: var(--color-text-muted);
-  padding: 4px 8px 0;
+  padding: var(--space-1) var(--space-2) 0;
 }
 
 .more-menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-2);
+  padding: var(--space-2);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-control);
   background: transparent;
   color: var(--color-text);
-  font-size: 13px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
   text-align: left;
   cursor: pointer;
 }
@@ -164,52 +241,57 @@ body {
 
 .more-menu-item.active {
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .more-menu-divider {
   height: 1px;
-  margin: 4px 0;
-  background: var(--color-border);
+  margin: var(--space-1) 0;
+  background: var(--color-border-subtle);
 }
 
 .tabs {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   overflow-x: auto;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .tab-wrapper {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-2);
   flex: none;
 }
 
 .tab-rename-input {
-  width: 100px;
-  padding: 5px 8px;
+  width: 120px;
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--color-accent);
-  border-radius: 16px;
-  font-size: 13px;
+  border-radius: var(--radius-full);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
   background: var(--color-surface);
   color: var(--color-text);
 }
 
 .tab-menu {
   display: flex;
-  gap: 4px;
-  margin-left: 4px;
+  gap: var(--space-2);
+  margin-left: var(--space-1);
 }
 
 .tab-menu button {
-  font-size: 11px;
-  padding: 3px 8px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 10px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
@@ -217,12 +299,15 @@ body {
 
 .tab-button {
   flex: none;
-  padding: 6px 12px;
+  padding: var(--space-2) var(--space-3);
   border: none;
-  border-radius: 16px;
+  border-radius: var(--radius-full);
   background: var(--color-tab-bg);
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -230,37 +315,50 @@ body {
 .tab-button.active {
   background: var(--color-tab-active-bg);
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .tab-add {
   flex: none;
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   border: none;
-  border-radius: 16px;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
   cursor: pointer;
+}
+
+.tab-add:hover {
+  background: var(--color-hover-overlay);
 }
 
 .tab-menu-button {
   border: none;
   background: transparent;
   cursor: pointer;
-  padding: 0 4px;
-  font-size: 14px;
+  padding: 0 var(--space-1);
+  font-size: var(--font-size-base);
+  border-radius: var(--radius-control);
   color: inherit;
+}
+
+.tab-menu-button:hover {
+  background: var(--color-hover-overlay);
 }
 
 .selection-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-surface-hover);
-  border-bottom: 1px solid var(--color-border);
-  font-size: 13px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
 }
 
 .selection-toolbar[hidden] {
@@ -269,15 +367,19 @@ body {
 
 .selection-toolbar-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .selection-delete-button {
-  padding: 4px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-error);
-  border-radius: 4px;
+  border-radius: var(--radius-control);
   background: var(--color-surface);
   color: var(--color-error);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
   cursor: pointer;
 }
 
@@ -287,21 +389,28 @@ body {
 }
 
 .selection-cancel-button {
-  padding: 4px 12px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 4px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
   background: var(--color-surface);
   color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
   cursor: pointer;
 }
 
 .item-checkbox {
   flex: none;
-  margin-right: 4px;
+  width: 18px;
+  height: 18px;
+  margin-right: var(--space-1);
+  accent-color: var(--color-accent);
 }
 
 .list-area {
-  padding: 12px;
+  padding: var(--space-3);
 }
 
 .item-list {
@@ -310,40 +419,53 @@ body {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .item-card {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: var(--radius-container);
+  padding: var(--space-3);
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
-.drag-handle {
+/* マウスカーソルやキーボードフォーカスがある項目を強調し、
+   いまどの項目を操作しているかが分かるようにする。 */
+.item-card:hover,
+.item-card:focus-within {
+  background: var(--color-surface-hover);
+  border-color: var(--color-accent);
+}
+
+.item-card.copyable {
+  cursor: pointer;
+}
+
+.reorder-controls {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.reorder-button {
   border: none;
   background: transparent;
   color: var(--color-text-muted);
-  font-size: 14px;
-  padding: 4px 6px;
-  cursor: grab;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-control);
+  cursor: pointer;
 }
 
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-.item-card.dragging {
-  opacity: 0.4;
-}
-
-.item-card.drag-over {
-  border-color: var(--color-accent);
-  border-style: dashed;
+.reorder-button:hover {
+  color: var(--color-text);
 }
 
 .item-card-main {
@@ -352,13 +474,16 @@ body {
 }
 
 .item-name {
+  font-size: var(--font-size-base);
   font-weight: 700;
+  line-height: var(--line-height-dense);
   display: block;
 }
 
 .item-value {
   color: var(--color-text-muted);
-  font-size: 13px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-body);
   display: block;
   word-break: break-all;
 }
@@ -366,39 +491,45 @@ body {
 .item-card-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   flex: none;
 }
 
-.copy-button {
-  padding: 6px 12px;
-  border: 1px solid var(--color-accent);
-  color: var(--color-accent);
-  background: var(--color-surface);
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
+/* アイコンは data URI の SVG で描く。同梱書体のサブセットにコピー記号
+   (U+29C9 等)やチェックマーク(U+2713)が収録されていないため、記号文字では
+   フォールバック書体に落ちて字形が環境依存になる。
+   mask で描くことで色を currentColor に追従させられる。 */
+.copy-button::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background-color: currentColor;
+  --icon-copy: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>');
+  -webkit-mask: var(--icon-copy) no-repeat center / contain;
+  mask: var(--icon-copy) no-repeat center / contain;
 }
 
-.kebab-button {
-  border: none;
-  background: transparent;
-  color: var(--color-text);
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px 6px;
+.copy-button.copied {
+  color: var(--color-success);
+}
+
+.copy-button.copied::before {
+  --icon-copy: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>');
 }
 
 .item-menu {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
 .item-menu button {
-  font-size: 11px;
-  padding: 3px 8px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 10px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
@@ -407,21 +538,25 @@ body {
 .empty-state {
   color: var(--color-text-muted);
   text-align: center;
-  padding: 24px 0;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-body);
+  padding: var(--space-5) 0;
 }
 
 .copy-status {
-  min-height: 1.2em;
+  min-height: calc(var(--font-size-base) * var(--line-height-dense));
   text-align: center;
-  font-size: 12px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
   color: var(--color-success);
   margin: 0;
 }
 
 .error {
   color: var(--color-error);
-  font-size: 12px;
-  padding: 4px 12px;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
+  padding: var(--space-1) var(--space-3);
 }
 
 .form-overlay {
@@ -431,7 +566,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 24px 12px;
+  padding: var(--space-5) var(--space-3);
 }
 
 .form-overlay[hidden] {
@@ -441,50 +576,60 @@ body {
 .item-form {
   background: var(--color-bg);
   color: var(--color-text);
-  border-radius: 8px;
-  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-container);
+  box-shadow: var(--elevation-6);
+  padding: var(--space-4);
   width: 100%;
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
+  gap: var(--space-1);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
 }
 
 .field input,
 .field textarea,
 .field select {
-  padding: 6px 8px;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 4px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
   background: var(--color-surface);
   color: var(--color-text);
-  font: inherit;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .actions button {
-  padding: 6px 14px;
-  border-radius: 4px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-control);
   cursor: pointer;
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
 }
 
 #item-save {
   background: var(--color-accent);
   border-color: var(--color-accent);
   color: var(--color-accent-contrast);
+  font-weight: 700;
 }
