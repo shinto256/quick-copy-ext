@@ -441,6 +441,26 @@ body {
   border-color: var(--color-accent);
 }
 
+/* 並び替えの起点。字形と配色は .group-row-handle と揃える。
+   当たり判定は padding で字形より広く取る（掴みやすくするため）。
+   カードは align-items: center なので、この要素を足しても高さは変わらない。 */
+.item-card-handle {
+  flex: none;
+  padding: var(--space-2);
+  margin: calc(var(--space-2) * -1) 0 calc(var(--space-2) * -1) calc(var(--space-2) * -1);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  line-height: 1;
+  cursor: grab;
+  /* ドラッグ中にコンテナのスクロールへポインタを取られないようにする */
+  touch-action: none;
+}
+
+.item-card.dragging .item-card-handle {
+  cursor: grabbing;
+  color: var(--color-accent);
+}
+
 /* フォーカスリングは box-shadow で要素の外側へ広がるため、隣のカードに隠れないよう
    重なり順だけを上げる。フォーカス表現自体はグローバルな :focus-visible をそのまま使う。 */
 .item-card:focus-visible {

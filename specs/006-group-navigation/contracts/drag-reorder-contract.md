@@ -25,8 +25,15 @@ attachDragReorder(container: HTMLElement, options: Options): () => void
   onActivate?: (row: HTMLElement) => void,
   onReorder: (orderedRows: HTMLElement[]) => void | Promise<void>,
   scrollContainer?: HTMLElement,   // 実際にスクロールする要素。既定は container 自身
+  handleSelector?: string,         // ドラッグを開始できる要素のセレクタ。既定は行全体
 }
 ```
+
+`handleSelector` を指定すると、そのセレクタに一致する要素を押した操作だけがドラッグの候補になり、
+行本体を押した操作はタップの候補としてのみ扱われる（ハンドルのタップでは `onActivate` を呼ばない）。
+省略すれば従来どおり行全体からドラッグできる。詳細は
+[009-item-reorder-handle/contracts/drag-handle-contract.md](../../009-item-reorder-handle/contracts/drag-handle-contract.md)
+を参照。項目カードは `".item-card-handle"` を指定し、グループの縦リストは指定しない。
 
 `container` 自身がスクロールしない場合は `scrollContainer` を渡す。項目一覧のようにドキュメントが
 スクロールする場合は `document.scrollingElement` を指定する。自動スクロールの発動判定は、

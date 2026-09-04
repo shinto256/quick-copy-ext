@@ -24,6 +24,10 @@ export function attachDragReorder(container, options) {
     // 実際にスクロールする要素。container 自身がスクロールしない場合に渡す
     // （項目一覧はドキュメントがスクロールするため document.scrollingElement）。
     scrollContainer = container,
+    // ドラッグを開始できる要素のセレクタ。省略時は行全体から開始できる（後方互換）。
+    // 指定すると、ここを押した操作だけがドラッグの候補になり、行本体を押した操作は
+    // タップの候補としてのみ扱われる。頻度の高いタップ操作で誤って並び替わるのを防ぐため。
+    handleSelector = null,
   } = options;
 
   const scrollsDocument =
@@ -98,6 +102,9 @@ export function attachDragReorder(container, options) {
       pointerY: event.clientY,
       // 閾値を超えたが canDrag が false だった場合、その操作は切替として扱わない
       abandoned: false,
+      // ドラッグの起点を限定している場合、押した場所がハンドルだったか。
+      // pointerdown の時点で1回だけ判定し、pointermove ごとに再評価しない。
+      fromHandle: handleSelector === null || Boolean(event.target.closest(handleSelector)),
     };
     row.setPointerCapture(event.pointerId);
     row.addEventListener("pointermove", handleMove);
@@ -242,6 +249,12 @@ export function attachDragReorder(container, options) {
     if (moved < threshold) {
       return;
     }
+    // ハンドル以外から始まった操作はドラッグにしない。動かしてから離しても
+    // タップ扱いにしないため、ここで無効化する。
+    if (!pending.fromHandle) {
+      pending.abandoned = true;
+      return;
+    }
     // 閾値を超えた時点で判定する。並び替えが無効なときは、この操作を切替にも使わない。
     if (!canDrag()) {
       pending.abandoned = true;
@@ -274,7 +287,9 @@ export function attachDragReorder(container, options) {
       }
       releasePointer(finished.row, finished.pointerId);
       // 閾値に達しないまま離した操作はタップとして通知する（呼び出し側が切替やコピーに使う）。
-      if (!finished.abandoned && onActivate) {
+      // ただしハンドルは並び替え専用の起点なので、押して離しただけでは何も起こさない。
+      const fromHandleOnly = handleSelector !== null && finished.fromHandle;
+      if (!finished.abandoned && !fromHandleOnly && onActivate) {
         onActivate(finished.row);
       }
       return;
