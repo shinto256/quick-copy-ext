@@ -4,12 +4,13 @@ import * as SettingsRepository from "../storage/settingsRepository.js";
 import { ValidationError } from "../storage/errors.js";
 import { formatDisplayValue } from "./maskDisplay.js";
 import { filterItemsByTabAndSearch, UNASSIGNED_TAB_ID } from "./itemFilter.js";
+import { initGroupPanel } from "./groupPanel.js";
+import { attachDragReorder } from "./dragReorder.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
 const addItemButton = document.getElementById("add-item-button");
 const tabsEl = document.getElementById("tabs");
-const groupErrorEl = document.getElementById("group-error");
 const listEl = document.getElementById("item-list");
 const emptyStateEl = document.getElementById("empty-state");
 const copyStatusEl = document.getElementById("copy-status");
@@ -43,11 +44,8 @@ let searchTerm = "";
 let editingItemId = null;
 let isFormOpen = false;
 
-// タブ/カードのケバブメニュー開閉用の一時状態
-let openTabMenuGroupId = null;
+// カードのケバブメニュー開閉用の一時状態
 let openItemMenuId = null;
-let creatingGroup = false;
-let renamingGroupId = null;
 let moreMenuOpen = false;
 let selectionMode = false;
 let selectedItemIds = new Set();
@@ -61,6 +59,9 @@ function currentGroupId() {
 function getVisibleItemIds() {
   return Array.from(listEl.querySelectorAll(".item-card")).map((li) => li.dataset.itemId);
 }
+
+// カードのタップからコピー対象を引くための、表示中の項目のキャッシュ。renderListで更新する。
+let visibleItemsById = new Map();
 
 async function persistReorder(orderedIds) {
   await ItemRepository.reorderGroup(currentGroupId(), orderedIds);
@@ -106,16 +107,6 @@ function markCopied(button) {
 
 const copiedTimers = new WeakMap();
 
-function showGroupError(message) {
-  groupErrorEl.textContent = message;
-  groupErrorEl.hidden = false;
-}
-
-function clearGroupError() {
-  groupErrorEl.hidden = true;
-  groupErrorEl.textContent = "";
-}
-
 function showItemError(message) {
   itemErrorEl.textContent = message;
   itemErrorEl.hidden = false;
@@ -136,6 +127,7 @@ async function renderList() {
   emptyStateEl.hidden = visibleItems.length > 0;
   emptyStateEl.textContent = searchTerm ? "該当する項目はありません。" : "登録済みの項目はありません。";
 
+  visibleItemsById = new Map(visibleItems.map((item) => [item.id, item]));
   for (const item of visibleItems) {
     listEl.appendChild(createItemCard(item, settings.maskEnabled));
   }
@@ -225,14 +217,11 @@ function createItemCard(item, maskEnabled) {
   actions.appendChild(copyButton);
 
   // 選択モード以外では、ボタン以外のどこを押してもコピーできるようにする。
+  // タップ（コピー）とドラッグ（並び替え）は同じポインタ操作なので、判定は
+  // dragReorder に一元化する（clickリスナーは持たせない）。
   // キーボード操作にはコピーボタンがあるため、カード自体はフォーカス対象にしない。
   if (!selectionMode) {
     li.classList.add("copyable");
-    li.addEventListener("click", async () => {
-      if (await copyValue(item.value)) {
-        markCopied(copyButton);
-      }
-    });
   }
 
   const kebabButton = document.createElement("button");
@@ -535,57 +524,42 @@ selectionGroupChangeCancelButton.addEventListener("click", () => {
 // ---- タブ（グループ） ----
 
 async function renderTabs() {
-  const groups = await GroupRepository.list();
+  // 表示順の情報源は tabOrder。groups は名前を引くための集合として使う。
+  const [groups, tabOrder] = await Promise.all([
+    GroupRepository.list(),
+    GroupRepository.listTabOrder(),
+  ]);
+  const groupsById = new Map(groups.map((group) => [group.id, group]));
   tabsEl.innerHTML = "";
-  tabsEl.appendChild(createTabElement(UNASSIGNED_TAB_ID, "未分類", null));
 
-  for (const group of groups) {
-    tabsEl.appendChild(createTabElement(group.id, group.name, group));
+  for (const tabId of tabOrder) {
+    if (tabId === UNASSIGNED_TAB_ID) {
+      tabsEl.appendChild(createTabElement(UNASSIGNED_TAB_ID, "未分類"));
+      continue;
+    }
+    const group = groupsById.get(tabId);
+    tabsEl.appendChild(createTabElement(group.id, group.name));
   }
 
-  if (creatingGroup) {
-    tabsEl.appendChild(createGroupInlineInput());
-  } else {
-    const addButton = document.createElement("button");
-    addButton.type = "button";
-    addButton.className = "tab-add";
-    addButton.textContent = "＋";
-    addButton.setAttribute("aria-label", "新規グループを作成");
-    addButton.addEventListener("click", () => {
-      creatingGroup = true;
-      renderTabs();
-    });
-    tabsEl.appendChild(addButton);
-  }
+  tabsEl.appendChild(createPanelOpenButton(tabOrder.length));
 }
 
-function createTabElement(groupId, label, group) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "tab-wrapper";
+// タブバー末尾に固定表示する、全グループパネルを開くボタン。
+// 併記する数は未分類を含むタブの総数（正規化後の並び順の要素数と一致する）。
+function createPanelOpenButton(tabCount) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "tab-panel-open";
+  button.textContent = `▾ ${tabCount}`;
+  button.setAttribute("aria-label", `グループ一覧を開く（全${tabCount}件）`);
+  button.title = "グループ一覧";
+  button.disabled = selectionMode;
+  button.addEventListener("click", () => groupPanel.open());
+  return button;
+}
 
-  if (group && renamingGroupId === groupId) {
-    const input = document.createElement("input");
-    input.type = "text";
-    input.className = "tab-rename-input";
-    input.maxLength = 30;
-    input.value = label;
-    input.addEventListener("keydown", async (event) => {
-      if (event.key === "Enter") {
-        await submitRenameGroup(group, input.value);
-      } else if (event.key === "Escape") {
-        renamingGroupId = null;
-        renderTabs();
-      }
-    });
-    input.addEventListener("blur", () => {
-      renamingGroupId = null;
-      renderTabs();
-    });
-    wrapper.appendChild(input);
-    queueMicrotask(() => input.focus());
-    return wrapper;
-  }
-
+// タブは切り替え専用。名称変更・削除・追加は全グループパネル（groupPanel.js）が担う。
+function createTabElement(groupId, label) {
   const button = document.createElement("button");
   button.type = "button";
   const isSelected = selectedTabId === groupId;
@@ -594,120 +568,10 @@ function createTabElement(groupId, label, group) {
     button.setAttribute("aria-current", "true");
   }
   button.textContent = label;
+  // タブは幅の上限で末尾省略されるため、全文はツールチップとパネルの縦リストで読めるようにする。
+  button.title = label;
   button.addEventListener("click", () => selectTab(groupId));
-  wrapper.appendChild(button);
-
-  if (group) {
-    const menuButton = document.createElement("button");
-    menuButton.type = "button";
-    menuButton.className = "tab-menu-button";
-    menuButton.textContent = "⋮";
-    menuButton.setAttribute("aria-label", `${label}の操作`);
-    menuButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      openTabMenuGroupId = openTabMenuGroupId === groupId ? null : groupId;
-      renderTabs();
-    });
-    wrapper.appendChild(menuButton);
-
-    if (openTabMenuGroupId === groupId) {
-      const menu = document.createElement("div");
-      menu.className = "tab-menu";
-
-      const renameButton = document.createElement("button");
-      renameButton.type = "button";
-      renameButton.textContent = "名称変更";
-      renameButton.addEventListener("click", () => {
-        openTabMenuGroupId = null;
-        renamingGroupId = groupId;
-        renderTabs();
-      });
-      menu.appendChild(renameButton);
-
-      const deleteButton = document.createElement("button");
-      deleteButton.type = "button";
-      deleteButton.textContent = "削除";
-      deleteButton.addEventListener("click", () => deleteGroup(group));
-      menu.appendChild(deleteButton);
-
-      wrapper.appendChild(menu);
-    }
-  }
-
-  return wrapper;
-}
-
-function createGroupInlineInput() {
-  const wrapper = document.createElement("div");
-  wrapper.className = "tab-wrapper";
-
-  const input = document.createElement("input");
-  input.type = "text";
-  input.className = "tab-rename-input";
-  input.maxLength = 30;
-  input.placeholder = "新規グループ名";
-  input.addEventListener("keydown", async (event) => {
-    if (event.key === "Enter") {
-      await submitCreateGroup(input.value);
-    } else if (event.key === "Escape") {
-      creatingGroup = false;
-      renderTabs();
-    }
-  });
-  input.addEventListener("blur", () => {
-    creatingGroup = false;
-    renderTabs();
-  });
-  wrapper.appendChild(input);
-  queueMicrotask(() => input.focus());
-  return wrapper;
-}
-
-async function submitCreateGroup(name) {
-  clearGroupError();
-  try {
-    await GroupRepository.create(name);
-    creatingGroup = false;
-    await renderTabs();
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      showGroupError(error.message);
-    } else {
-      showGroupError("作成に失敗しました。もう一度お試しください。");
-    }
-  }
-}
-
-async function submitRenameGroup(group, name) {
-  clearGroupError();
-  try {
-    await GroupRepository.rename(group.id, name);
-    renamingGroupId = null;
-    await renderTabs();
-  } catch (error) {
-    if (error instanceof ValidationError) {
-      showGroupError(error.message);
-    } else {
-      showGroupError("名称変更に失敗しました。もう一度お試しください。");
-    }
-  }
-}
-
-async function deleteGroup(group) {
-  openTabMenuGroupId = null;
-  const confirmed = window.confirm(
-    `グループ「${group.name}」を削除しますか？所属する項目もすべて削除されます。この操作は取り消せません。`
-  );
-  if (!confirmed) {
-    await renderTabs();
-    return;
-  }
-  await GroupRepository.remove(group.id);
-  if (selectedTabId === group.id) {
-    selectedTabId = UNASSIGNED_TAB_ID;
-  }
-  await renderTabs();
-  await renderList();
+  return button;
 }
 
 async function selectTab(groupId) {
@@ -725,10 +589,6 @@ async function selectTab(groupId) {
 }
 
 document.addEventListener("click", (event) => {
-  if (openTabMenuGroupId !== null && !event.target.closest(".tab-wrapper")) {
-    openTabMenuGroupId = null;
-    renderTabs();
-  }
   if (openItemMenuId !== null && !event.target.closest(".item-card-actions")) {
     openItemMenuId = null;
     renderList();
@@ -765,12 +625,52 @@ searchInput.addEventListener("input", () => {
   renderList();
 });
 
+// ---- 項目カードのタップ／ドラッグ ----
+
+// spec 003 FR-001（ドラッグ&ドロップによる並び替え）。FR-002 の上下移動ボタンは
+// ドラッグ操作の代替手段として残す。FR-004 により検索絞り込み中は無効。
+attachDragReorder(listEl, {
+  rowSelector: ".item-card",
+  // 項目一覧は #item-list 自身ではなくドキュメントがスクロールする。
+  scrollContainer: document.scrollingElement,
+  ignoreSelector: ".copy-button, .kebab-button, .item-menu, .reorder-controls, .item-checkbox",
+  canDrag: () => !searchTerm && !selectionMode,
+  onActivate: async (row) => {
+    // 選択モード中はコピーを行わない（spec 005）。
+    if (selectionMode) {
+      return;
+    }
+    const item = visibleItemsById.get(row.dataset.itemId);
+    if (!item) {
+      return;
+    }
+    if (await copyValue(item.value)) {
+      const copyButton = row.querySelector(".copy-button");
+      if (copyButton) {
+        markCopied(copyButton);
+      }
+    }
+  },
+  onReorder: (orderedRows) => persistReorder(orderedRows.map((row) => row.dataset.itemId)),
+});
+
+// ---- 全グループパネル ----
+
+const groupPanel = initGroupPanel({
+  getSelectedTabId: () => selectedTabId,
+  isSelectionMode: () => selectionMode,
+  onSelectTab: (tabId) => selectTab(tabId),
+  onTabsChanged: () => renderTabs(),
+  onItemsChanged: () => renderList(),
+});
+
 // ---- 初期化 ----
 
 async function init() {
   await initMaskToggle();
-  const groups = await GroupRepository.list();
-  selectedTabId = groups.length > 0 ? groups[0].id : UNASSIGNED_TAB_ID;
+  // 起動時は並び順の先頭のタブを開く。既定の並び順では未分類が先頭になる。
+  const tabOrder = await GroupRepository.listTabOrder();
+  selectedTabId = tabOrder[0];
   await renderTabs();
   await renderList();
 }

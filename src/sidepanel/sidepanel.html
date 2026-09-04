@@ -33,8 +33,6 @@
 
     <nav class="tabs" id="tabs" aria-label="グループタブ"></nav>
 
-    <div id="group-error" class="error" role="alert" hidden></div>
-
     <div id="selection-toolbar" class="selection-toolbar" hidden>
       <span id="selection-count">0件選択中</span>
       <div class="selection-toolbar-actions">
@@ -69,6 +67,35 @@
     </main>
 
     <p id="copy-status" class="copy-status" role="status"></p>
+
+    <div id="group-panel-overlay" class="form-overlay group-panel-overlay" hidden>
+      <div id="group-panel" class="group-panel" role="dialog" aria-modal="true" aria-label="グループ一覧">
+        <div class="group-panel-header">
+          <input
+            type="search"
+            id="group-panel-filter"
+            class="group-panel-filter"
+            placeholder="グループ名で絞り込み"
+            aria-label="グループ名で絞り込み"
+          />
+          <button
+            type="button"
+            id="group-panel-close"
+            class="icon-button"
+            aria-label="グループ一覧を閉じる"
+            title="グループ一覧を閉じる"
+          >
+            ✕
+          </button>
+        </div>
+        <ul id="group-panel-list" class="group-panel-list"></ul>
+        <p id="group-panel-empty" class="empty-state" hidden>該当するグループはありません。</p>
+        <button type="button" id="group-panel-add" class="group-panel-add" hidden>
+          ＋ グループを追加
+        </button>
+        <p id="group-panel-error" class="error" role="alert" hidden></p>
+      </div>
+    </div>
 
     <div id="item-form-overlay" class="form-overlay" hidden>
       <form id="item-form" class="item-form">
