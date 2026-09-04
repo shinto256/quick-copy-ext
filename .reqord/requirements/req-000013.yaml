@@ -1,10 +1,10 @@
 id: req-000013
 version: '1.0'
 title: 項目カードの並び替えハンドル
-status: approved
+status: implemented
 priority: medium
 createdAt: 2026-09-04T10:13:09.404Z
-updatedAt: 2026-09-04T10:15:25.255Z
+updatedAt: 2026-09-04T10:24:28.806Z
 versionHistory: []
 files:
   description: requirements/req-000013/description.md
