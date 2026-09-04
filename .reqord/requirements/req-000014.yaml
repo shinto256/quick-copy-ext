@@ -1,0 +1,30 @@
+id: req-000014
+version: '1.0'
+title: タブバーの横スクロール廃止と幅追従表示
+status: draft
+priority: medium
+createdAt: 2026-09-04T10:28:04.079Z
+updatedAt: 2026-09-04T10:28:48.890Z
+versionHistory: []
+files:
+  description: requirements/req-000014/description.md
+  supplementary: []
+successCriteria:
+  - タブバーに横スクロールバーが表示される事象が0件である。
+  - タブが幅に収まらない状態で、タブバーからはみ出して表示されるタブが0件である。
+  - サイドパネルの幅を広げて余白ができた場合、収まるようになったタブが表示される。
+  - 選択中のタブがタブバーに表示されない事象が0件である。
+  - 全グループパネルを開くボタンが表示されない事象が0件である。
+  - 隠れているタブにキーボードのフォーカスが当たる事象が0件である。
+  - 隠れているタブへ全グループパネルから到達できる割合が100%である。
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo:
+    - req-000010
+    - req-000011
