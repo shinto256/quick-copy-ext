@@ -1,10 +1,10 @@
 id: req-000012
 version: '1.0'
 title: 項目並び替え操作の統一
-status: draft
+status: approved
 priority: medium
 createdAt: 2026-09-04T09:47:57.461Z
-updatedAt: 2026-09-04T09:49:03.610Z
+updatedAt: 2026-09-04T09:49:24.685Z
 versionHistory: []
 files:
   description: requirements/req-000012/description.md
