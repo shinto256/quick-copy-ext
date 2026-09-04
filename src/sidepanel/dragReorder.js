@@ -4,8 +4,9 @@
 // HTML5 drag and drop API を使わない理由: ドラッグ画像が静止スナップショットになり
 // 「移動先の行が退避する」演出を制御できず、タッチ操作にも対応しないため。
 //
-// 挿入位置は「移動量 ÷ 行高」の算術で求める。行高はドラッグ開始時に1回だけ計測するので、
-// pointermove ごとの矩形計測が不要になる（行の高さが一定であることが前提）。
+// 各行の位置と高さはドラッグ開始時に1回だけ計測し、以降は計測しない。挿入位置は
+// 「掴んだ行の中心が、他の何行の中心を越えたか」で求めるので、行の高さが揃っていなくても
+// 正しく動く（項目カードのように高さが可変のリストにも使える）。
 
 const DEFAULT_THRESHOLD = 5;
 const AUTO_SCROLL_EDGE = 30;
@@ -20,7 +21,27 @@ export function attachDragReorder(container, options) {
     canDrag = () => true,
     onActivate = null,
     onReorder,
+    // 実際にスクロールする要素。container 自身がスクロールしない場合に渡す
+    // （項目一覧はドキュメントがスクロールするため document.scrollingElement）。
+    scrollContainer = container,
   } = options;
+
+  const scrollsDocument =
+    scrollContainer === document.scrollingElement || scrollContainer === document.body;
+
+  function scrollTopOf() {
+    return scrollContainer.scrollTop;
+  }
+
+  // 自動スクロールの発動判定に使う可視領域。ドキュメントがスクロールする場合は
+  // 要素の矩形ではなくビューポートを見る。
+  function viewportBounds() {
+    if (scrollsDocument) {
+      return { top: 0, bottom: window.innerHeight };
+    }
+    const rect = scrollContainer.getBoundingClientRect();
+    return { top: rect.top, bottom: rect.bottom };
+  }
 
   // 押している間だけ存在する状態。null ならポインタを掴んでいない。
   let pending = null;
@@ -73,7 +94,7 @@ export function attachDragReorder(container, options) {
       pointerId: event.pointerId,
       startY: event.clientY,
       startX: event.clientX,
-      startScrollTop: container.scrollTop,
+      startScrollTop: scrollTopOf(),
       pointerY: event.clientY,
       // 閾値を超えたが canDrag が false だった場合、その操作は切替として扱わない
       abandoned: false,
@@ -84,6 +105,26 @@ export function attachDragReorder(container, options) {
     row.addEventListener("pointercancel", handleCancel);
   }
 
+  // 行の位置をコンテナ内の相対オフセットとして記録する。スクロールしても変わらない値なので、
+  // ドラッグ中に再計測する必要がない。
+  function measureRows(targetRows) {
+    const containerRect = container.getBoundingClientRect();
+    const metrics = targetRows.map((row) => {
+      const rect = row.getBoundingClientRect();
+      return {
+        row,
+        top: rect.top - containerRect.top,
+        height: rect.height,
+      };
+    });
+    // 行間の余白（list の gap）。連続して並ぶリストでは 0 になる。
+    const gap =
+      metrics.length > 1
+        ? Math.max(0, metrics[1].top - (metrics[0].top + metrics[0].height))
+        : 0;
+    return { metrics, gap };
+  }
+
   function beginDrag() {
     const targetRows = rows();
     const startIndex = targetRows.indexOf(pending.row);
@@ -92,9 +133,8 @@ export function attachDragReorder(container, options) {
       return;
     }
 
-    // 行高はここで1回だけ計測する。CSS側を唯一の情報源にでき、ズームやフォント変更にも追従する。
-    const rowHeight = targetRows[0].getBoundingClientRect().height;
-    if (!rowHeight) {
+    const { metrics, gap } = measureRows(targetRows);
+    if (!metrics[startIndex].height) {
       pending.abandoned = true;
       return;
     }
@@ -103,12 +143,15 @@ export function attachDragReorder(container, options) {
       row: pending.row,
       pointerId: pending.pointerId,
       rows: targetRows,
+      metrics,
+      gap,
       startIndex,
       insertIndex: startIndex,
       startY: pending.startY,
       startScrollTop: pending.startScrollTop,
       pointerY: pending.pointerY,
-      rowHeight,
+      // 掴んだ行が占めていた縦方向の領域。抜けると下の行がこの分だけ繰り上がる。
+      slot: metrics[startIndex].height + gap,
     };
     drag.row.classList.remove("shifting");
     drag.row.classList.add("dragging");
@@ -116,30 +159,46 @@ export function attachDragReorder(container, options) {
     applyDragPosition();
   }
 
+  // 掴んだ行の中心が、他の行の中心をいくつ越えたかが挿入位置になる。
+  // 行の高さが揃っていなくても成り立つ。
+  function insertIndexFor(offset) {
+    const start = drag.metrics[drag.startIndex];
+    const draggedCenter = start.top + offset + start.height / 2;
+    let index = 0;
+    drag.metrics.forEach((metric, i) => {
+      if (i === drag.startIndex) {
+        return;
+      }
+      if (draggedCenter > metric.top + metric.height / 2) {
+        index += 1;
+      }
+    });
+    return index;
+  }
+
   function applyDragPosition() {
     const offset =
-      drag.pointerY - drag.startY + (container.scrollTop - drag.startScrollTop);
+      drag.pointerY - drag.startY + (scrollTopOf() - drag.startScrollTop);
     drag.row.style.transform = `translateY(${offset}px)`;
 
-    let next = drag.startIndex + Math.round(offset / drag.rowHeight);
-    next = Math.max(0, Math.min(drag.rows.length - 1, next));
+    const next = insertIndexFor(offset);
     if (next === drag.insertIndex) {
       return;
     }
     drag.insertIndex = next;
 
-    drag.rows.forEach((row, index) => {
-      if (row === drag.row) {
+    drag.metrics.forEach((metric, index) => {
+      if (index === drag.startIndex) {
         return;
       }
       let shift = 0;
       if (drag.startIndex < next && index > drag.startIndex && index <= next) {
-        shift = -drag.rowHeight;
+        shift = -drag.slot;
       } else if (drag.startIndex > next && index >= next && index < drag.startIndex) {
-        shift = drag.rowHeight;
+        shift = drag.slot;
       }
-      row.classList.add("shifting");
-      row.style.transform = shift ? `translateY(${shift}px)` : "";
+      metric.row.classList.add("shifting");
+      metric.row.style.transform = shift ? `translateY(${shift}px)` : "";
     });
   }
 
@@ -149,17 +208,17 @@ export function attachDragReorder(container, options) {
       autoScrollHandle = null;
       return;
     }
-    const rect = container.getBoundingClientRect();
+    const bounds = viewportBounds();
     let delta = 0;
-    if (drag.pointerY < rect.top + AUTO_SCROLL_EDGE) {
+    if (drag.pointerY < bounds.top + AUTO_SCROLL_EDGE) {
       delta = -AUTO_SCROLL_SPEED;
-    } else if (drag.pointerY > rect.bottom - AUTO_SCROLL_EDGE) {
+    } else if (drag.pointerY > bounds.bottom - AUTO_SCROLL_EDGE) {
       delta = AUTO_SCROLL_SPEED;
     }
     if (delta !== 0) {
-      const before = container.scrollTop;
-      container.scrollTop += delta;
-      if (container.scrollTop !== before) {
+      const before = scrollTopOf();
+      scrollContainer.scrollTop = before + delta;
+      if (scrollTopOf() !== before) {
         applyDragPosition();
       }
     }
@@ -191,6 +250,21 @@ export function attachDragReorder(container, options) {
     beginDrag();
   }
 
+  // 確定後に掴んだ行が収まる位置。下へ移した場合は移動先の行の末尾、
+  // 上へ移した場合は移動先の行の先頭に入る。
+  function settleOffsetOf(state) {
+    const start = state.metrics[state.startIndex];
+    const target = state.metrics[state.insertIndex];
+    if (state.insertIndex === state.startIndex) {
+      return 0;
+    }
+    const finalTop =
+      state.insertIndex > state.startIndex
+        ? target.top + target.height - start.height
+        : target.top;
+    return finalTop - start.top;
+  }
+
   function handleUp() {
     if (!drag) {
       const finished = pending;
@@ -199,7 +273,7 @@ export function attachDragReorder(container, options) {
         return;
       }
       releasePointer(finished.row, finished.pointerId);
-      // 閾値に達しないまま離した操作はグループ切替として扱う。
+      // 閾値に達しないまま離した操作はタップとして通知する（呼び出し側が切替やコピーに使う）。
       if (!finished.abandoned && onActivate) {
         onActivate(finished.row);
       }
@@ -212,10 +286,8 @@ export function attachDragReorder(container, options) {
     stopAutoScroll();
     releasePointer(finishedDrag.row, finishedDrag.pointerId);
 
-    const settleOffset =
-      (finishedDrag.insertIndex - finishedDrag.startIndex) * finishedDrag.rowHeight;
     finishedDrag.row.classList.add("settling");
-    finishedDrag.row.style.transform = `translateY(${settleOffset}px)`;
+    finishedDrag.row.style.transform = `translateY(${settleOffsetOf(finishedDrag)}px)`;
 
     // アニメーション中はDOMを触らない。確定時のレイアウト変化でカクつかせないため。
     setTimeout(() => {

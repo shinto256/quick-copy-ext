@@ -5,6 +5,7 @@ import { ValidationError } from "../storage/errors.js";
 import { formatDisplayValue } from "./maskDisplay.js";
 import { filterItemsByTabAndSearch, UNASSIGNED_TAB_ID } from "./itemFilter.js";
 import { initGroupPanel } from "./groupPanel.js";
+import { attachDragReorder } from "./dragReorder.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
@@ -58,6 +59,9 @@ function currentGroupId() {
 function getVisibleItemIds() {
   return Array.from(listEl.querySelectorAll(".item-card")).map((li) => li.dataset.itemId);
 }
+
+// カードのタップからコピー対象を引くための、表示中の項目のキャッシュ。renderListで更新する。
+let visibleItemsById = new Map();
 
 async function persistReorder(orderedIds) {
   await ItemRepository.reorderGroup(currentGroupId(), orderedIds);
@@ -123,6 +127,7 @@ async function renderList() {
   emptyStateEl.hidden = visibleItems.length > 0;
   emptyStateEl.textContent = searchTerm ? "該当する項目はありません。" : "登録済みの項目はありません。";
 
+  visibleItemsById = new Map(visibleItems.map((item) => [item.id, item]));
   for (const item of visibleItems) {
     listEl.appendChild(createItemCard(item, settings.maskEnabled));
   }
@@ -212,14 +217,11 @@ function createItemCard(item, maskEnabled) {
   actions.appendChild(copyButton);
 
   // 選択モード以外では、ボタン以外のどこを押してもコピーできるようにする。
+  // タップ（コピー）とドラッグ（並び替え）は同じポインタ操作なので、判定は
+  // dragReorder に一元化する（clickリスナーは持たせない）。
   // キーボード操作にはコピーボタンがあるため、カード自体はフォーカス対象にしない。
   if (!selectionMode) {
     li.classList.add("copyable");
-    li.addEventListener("click", async () => {
-      if (await copyValue(item.value)) {
-        markCopied(copyButton);
-      }
-    });
   }
 
   const kebabButton = document.createElement("button");
@@ -621,6 +623,35 @@ searchInput.addEventListener("input", () => {
     updateSelectionToolbar();
   }
   renderList();
+});
+
+// ---- 項目カードのタップ／ドラッグ ----
+
+// spec 003 FR-001（ドラッグ&ドロップによる並び替え）。FR-002 の上下移動ボタンは
+// ドラッグ操作の代替手段として残す。FR-004 により検索絞り込み中は無効。
+attachDragReorder(listEl, {
+  rowSelector: ".item-card",
+  // 項目一覧は #item-list 自身ではなくドキュメントがスクロールする。
+  scrollContainer: document.scrollingElement,
+  ignoreSelector: ".copy-button, .kebab-button, .item-menu, .reorder-controls, .item-checkbox",
+  canDrag: () => !searchTerm && !selectionMode,
+  onActivate: async (row) => {
+    // 選択モード中はコピーを行わない（spec 005）。
+    if (selectionMode) {
+      return;
+    }
+    const item = visibleItemsById.get(row.dataset.itemId);
+    if (!item) {
+      return;
+    }
+    if (await copyValue(item.value)) {
+      const copyButton = row.querySelector(".copy-button");
+      if (copyButton) {
+        markCopied(copyButton);
+      }
+    }
+  },
+  onReorder: (orderedRows) => persistReorder(orderedRows.map((row) => row.dataset.itemId)),
 });
 
 // ---- 全グループパネル ----

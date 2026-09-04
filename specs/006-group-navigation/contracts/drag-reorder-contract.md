@@ -19,13 +19,18 @@ attachDragReorder(container: HTMLElement, options: Options): () => void
 ```text
 {
   rowSelector: string,             // 並び替え対象の行を特定するセレクタ（例: ".group-row"）
-  ignoreSelector?: string,         // 行内でドラッグ・タップ判定から除外する要素のセレクタ（例: ".group-row-menu-button"）
+  ignoreSelector?: string,         // 行内でドラッグ・タップ判定から除外する要素のセレクタ
   threshold?: number,              // ドラッグ開始と判定する移動距離(px)。既定 5
   canDrag?: () => boolean,         // false のとき並び替えを開始しない。既定は常に true
   onActivate?: (row: HTMLElement) => void,
   onReorder: (orderedRows: HTMLElement[]) => void | Promise<void>,
+  scrollContainer?: HTMLElement,   // 実際にスクロールする要素。既定は container 自身
 }
 ```
+
+`container` 自身がスクロールしない場合は `scrollContainer` を渡す。項目一覧のようにドキュメントが
+スクロールする場合は `document.scrollingElement` を指定する。自動スクロールの発動判定は、
+ドキュメントがスクロールする場合はビューポート、それ以外は `scrollContainer` の矩形で行う。
 
 ### canDrag の適用範囲
 
@@ -56,25 +61,29 @@ attachDragReorder(container: HTMLElement, options: Options): () => void
 
 ### ドラッグ中
 
-1. ドラッグ開始時に、先頭行の高さを `getBoundingClientRect().height` で**1回だけ**計測して行高とする。
-   以降は再計測しない。
+1. ドラッグ開始時に**1回だけ**、各行の位置（`container` 内の相対オフセット）と高さ、および
+   行間の余白（リストの `gap`）を計測する。以降は再計測しない。相対オフセットはスクロールしても
+   変わらないため、自動スクロール中も再計測が不要。
 2. 掴んだ行に `transform: translateY(移動量)` を当てる。移動量は
-   `現在のポインタY - 押したポインタY + (container.scrollTop - 押したときのscrollTop)`。
-3. 挿入位置は `開始index + Math.round(移動量 / 行高)` を `[0, 行数 - 1]` にクランプして求める。
-   `pointermove` ごとの矩形計測は行わない。
+   `現在のポインタY - 押したポインタY + (scrollContainer.scrollTop - 押したときのscrollTop)`。
+3. 挿入位置は「掴んだ行の中心が、他の行の中心をいくつ越えたか」で求める。
+   `pointermove` ごとの矩形計測は行わない。**行の高さが揃っていなくても正しく動く**。
 4. 挿入位置が変わったときのみ、掴んだ行以外の各行に退避の `transform` を当てる。
-   - 下方向へ移動中: 開始indexより後ろで挿入位置以下の行を `translateY(-行高)`
-   - 上方向へ移動中: 挿入位置以上で開始indexより前の行を `translateY(+行高)`
+   退避量は `掴んだ行の高さ + 行間の余白`（＝掴んだ行が抜けたときに下の行が繰り上がる量）。
+   - 下方向へ移動中: 開始indexより後ろで挿入位置以下の行を `translateY(-退避量)`
+   - 上方向へ移動中: 挿入位置以上で開始indexより前の行を `translateY(+退避量)`
    - それ以外の行は `transform` を解除
    退避には `transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1)` を適用する（FR-014）。
-5. ポインタが `container` の上端・下端から30px以内にある間、`requestAnimationFrame` ループで
-   `container.scrollTop` を1フレームあたり11px動かし、そのたびに手順2〜4を再適用する（FR-015）。
-   ポインタが静止していてもスクロールは継続する。
+5. ポインタが `scrollContainer` の可視領域の上端・下端から30px以内にある間、
+   `requestAnimationFrame` ループで `scrollContainer.scrollTop` を1フレームあたり11px動かし、
+   そのたびに手順2〜4を再適用する（FR-015）。ポインタが静止していてもスクロールは継続する。
 
 ### ドロップ（確定）
 
 1. `pointerup` で自動スクロールのループを停止する。
-2. 掴んだ行を最終位置（`(挿入位置 - 開始index) * 行高`）へ `transform` で180msかけて遷移させる。
+2. 掴んだ行を最終位置へ `transform` で180msかけて遷移させる。最終位置は、下へ移した場合は
+   移動先の行の末尾（`移動先.top + 移動先.height - 掴んだ行.height`）、上へ移した場合は
+   移動先の行の先頭（`移動先.top`）。
 3. 遷移完了後、DOMの並びを挿入位置どおりに入れ替え、全行の `transform` と `transition` を解除する。
    アニメーション中はDOMを触らない（確定時のレイアウト変化によるカクつきを避けるため）。
 4. `onReorder(orderedRows)` を呼ぶ。`orderedRows` は並び替え後のDOM順の行要素の配列。
@@ -94,10 +103,13 @@ attachDragReorder(container: HTMLElement, options: Options): () => void
 
 | 前提 | 内容 |
 |------|------|
-| 行の高さ | すべての行が同じ高さで、内容によって変わらない（1行固定・末尾省略） |
-| `touch-action` | 行に `touch-action: none` を指定する（ドラッグ中にコンテナのスクロールへ取られないため） |
-| `container` のスクロール | `container` 自身が `overflow-y: auto` でスクロールする |
+| 行の高さ | 揃っていなくてよい（可変高に対応済み）。ただしドラッグ中に高さが変わる行は想定しない |
+| `touch-action` | タッチでもドラッグさせたい場合は行に `touch-action: none` を指定する。指定しない場合、タッチ操作ではブラウザのスクロールが優先され `pointercancel` でドラッグが中断される |
+| スクロール | `container` 自身がスクロールしない場合は `scrollContainer` を渡す |
 | 重なり順 | ドラッグ中の行に付与するクラスで `z-index` を上げ、影を付けられるようにする |
+
+`dragReorder` が行に付与するクラスは `dragging` / `shifting` / `settling` の3つ。
+行の種類（`.group-row` / `.item-card`）を問わないため、スタイルは共通で定義できる。
 
 ## エラー
 
