@@ -1,10 +1,10 @@
 id: req-000010
 version: '1.0'
 title: グループナビゲーション改善機能
-status: draft
+status: approved
 priority: high
 createdAt: 2026-09-04T05:27:49.046Z
-updatedAt: 2026-09-04T05:38:12.189Z
+updatedAt: 2026-09-04T05:49:20.255Z
 versionHistory: []
 files:
   description: requirements/req-000010/description.md
