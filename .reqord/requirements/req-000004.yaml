@@ -1,15 +1,19 @@
 id: req-000004
-version: '1.1'
+version: '1.2'
 title: グループ管理機能
-status: approved
+status: draft
 priority: medium
 createdAt: 2026-08-27T07:45:43.173Z
-updatedAt: 2026-08-28T07:55:43.347Z
+updatedAt: 2026-09-04T08:19:03.939Z
 versionHistory:
   - version: '1.1'
     status: draft
     changedAt: 2026-08-28T07:55:37.390Z
     summary: Success criteria updated
+  - version: '1.2'
+    status: draft
+    changedAt: 2026-09-04T08:19:03.941Z
+    summary: Requirement updated
 files:
   description: requirements/req-000004/description.md
   supplementary: []
@@ -17,7 +21,7 @@ successCriteria:
   - グループは最大50個まで作成可能
   - グループ絞り込み操作から一覧の再描画までが300ms以内に完了する
   - グループ削除操作は確認を経て確定し、確定後は旧所属項目の100%が一覧・保存データから削除される(未削除の項目は0件)
-  - グループ名は1〜30文字でバリデーションされ、範囲外入力は100%エラーとなる
+  - グループ名は1〜20文字でバリデーションされ、範囲外入力は100%エラーとなる
 format:
   type: ears
   ears:
