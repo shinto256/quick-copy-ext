@@ -1,16 +1,20 @@
 id: req-000015
-version: '1.0'
+version: '1.1'
 title: サイドパネルの多言語対応
 status: approved
 priority: medium
 createdAt: 2026-09-04T10:48:00.078Z
-updatedAt: 2026-09-04T10:49:45.195Z
-versionHistory: []
+updatedAt: 2026-09-04T11:06:00.313Z
+versionHistory:
+  - version: '1.1'
+    status: draft
+    changedAt: 2026-09-04T11:04:49.494Z
+    summary: Requirement updated
 files:
   description: requirements/req-000015/description.md
   supplementary: []
 successCriteria:
-  - サイドパネル右上のメニューに「言語」の選択項目が表示され、日本語・英語・中国語の3つから選べる。
+  - サイドパネル右上のメニューに「言語」の選択項目が表示され、日本語・英語の2つから選べる。
   - 言語を選択すると、サイドパネル内の表示文字列の100%が選択した言語に切り替わる。
   - 言語設定を保存後、拡張機能を閉じて再度開いても選択した言語が維持される。
   - 初期状態（言語を一度も選択していない状態）でサイドパネルを開くと、日本語で表示される。
