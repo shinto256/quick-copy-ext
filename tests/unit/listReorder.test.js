@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { moveInList } from "../../src/sidepanel/listReorder.js";
+import {
+  isActivationKey,
+  moveInList,
+  reorderOffsetFromKey,
+} from "../../src/sidepanel/listReorder.js";
 
 describe("moveInList - moves an element within range", () => {
   it("moves an element one position up", () => {
@@ -80,5 +84,43 @@ describe("moveInList - at the tab count limit", () => {
     expect(current[0]).toBe(target);
     expect(current).toHaveLength(51);
     expect(new Set(current).size).toBe(51);
+  });
+});
+
+describe("reorderOffsetFromKey - shared reorder key detection", () => {
+  it("returns -1 for Alt + ArrowUp", () => {
+    expect(reorderOffsetFromKey({ key: "ArrowUp", altKey: true })).toBe(-1);
+  });
+
+  it("returns 1 for Alt + ArrowDown", () => {
+    expect(reorderOffsetFromKey({ key: "ArrowDown", altKey: true })).toBe(1);
+  });
+
+  it("returns null for arrows without Alt", () => {
+    expect(reorderOffsetFromKey({ key: "ArrowUp", altKey: false })).toBeNull();
+    expect(reorderOffsetFromKey({ key: "ArrowDown", altKey: false })).toBeNull();
+  });
+
+  it("returns null for Alt with any other key", () => {
+    expect(reorderOffsetFromKey({ key: "ArrowLeft", altKey: true })).toBeNull();
+    expect(reorderOffsetFromKey({ key: "Enter", altKey: true })).toBeNull();
+    expect(reorderOffsetFromKey({ key: "a", altKey: true })).toBeNull();
+  });
+});
+
+describe("isActivationKey - shared activation key detection", () => {
+  it("returns true for Enter", () => {
+    expect(isActivationKey({ key: "Enter" })).toBe(true);
+  });
+
+  it("returns true for Space", () => {
+    expect(isActivationKey({ key: " " })).toBe(true);
+  });
+
+  it("returns false for other keys", () => {
+    expect(isActivationKey({ key: "Escape" })).toBe(false);
+    expect(isActivationKey({ key: "Tab" })).toBe(false);
+    expect(isActivationKey({ key: "ArrowUp" })).toBe(false);
+    expect(isActivationKey({ key: "a" })).toBe(false);
   });
 });

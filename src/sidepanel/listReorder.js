@@ -14,3 +14,28 @@ export function moveInList(list, index, offset) {
   next.splice(target, 0, moved);
   return next;
 }
+
+// 並び替えと決定に使うキーの判定。項目カードとグループの縦リストの双方がこれを通ることで、
+// 「両者でキーが同一」（spec 008 FR-005）がコード上で保証される。
+// event は key と altKey の2プロパティだけを読む。
+
+// 並び替えの移動操作なら移動量（-1 / 1）、それ以外は null を返す。
+export function reorderOffsetFromKey(event) {
+  if (!event.altKey) {
+    return null;
+  }
+  if (event.key === "ArrowUp") {
+    return -1;
+  }
+  if (event.key === "ArrowDown") {
+    return 1;
+  }
+  return null;
+}
+
+// 決定操作か。ネイティブのボタンは Enter と Space の双方で発火するため、
+// tabindex を付けた要素をボタン相当に見せるうえで両方受ける。
+// Space のページスクロールの抑止は呼び出し側の責務。
+export function isActivationKey(event) {
+  return event.key === "Enter" || event.key === " ";
+}
