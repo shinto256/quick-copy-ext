@@ -1,0 +1,31 @@
+id: req-000010
+version: '1.0'
+title: グループナビゲーション改善機能
+status: draft
+priority: high
+createdAt: 2026-09-04T05:27:49.046Z
+updatedAt: 2026-09-04T05:38:12.189Z
+versionHistory: []
+files:
+  description: requirements/req-000010/description.md
+  supplementary: []
+successCriteria:
+  - グループが50個の状態でも、パネルを開いてから絞り込み入力で目的のグループを表示するまでの操作が3アクション以内で完了する。
+  - 並び順の最下部にあるグループを先頭へ移動する操作が1回のドラッグで完了し、その順序がタブバーの表示順に100%反映される。
+  - 並び替えた順序が拡張機能の再起動後も100%保持され、起動時に選択されるタブが並び順の先頭になる。
+  - グループ名の入力欄で21文字以上を入力できない。
+  - グループの追加・削除を行った後も、タブの重複表示および欠落が0件である。
+  - 絞り込みが有効な間、並び替え操作が100%無効になる。
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo:
+    - req-000002
+    - req-000004
+    - req-000005
+    - req-000009
