@@ -7,7 +7,7 @@
 - 項目（名前＋値）の登録・編集・削除（サイドパネル内のインラインUIで完結、画面遷移なし）
 - タブ（グループ）+カード形式の一覧表示とワンクリックコピー（値はデフォルトでマスク表示）
 - マスク表示のON/OFF切替（ヘッダーに常時表示、状態は保持）
-- 全グループパネル：タブバー末尾の「▾」から未分類を含む全タブを縦リストで一覧し、グループ名で絞り込んで切り替え
+- 全グループパネル：タブバー末尾の「▾」から未分類を含む全タブを縦リストで一覧し、グループ名で絞り込んで切り替え（キーボードのみでも操作可能。行にフォーカスして `Enter` / `Space` で切替、`Alt` + `↑` / `↓` で並び替え）
 - グループの作成・名称編集・削除（全グループパネル内で完結。グループを削除すると所属する項目も削除される）
 - グループのドラッグ&ドロップによる並び替え（未分類も対象。並び順がタブ順と起動時に開くタブになる）
 - 項目名での検索絞り込み
@@ -19,11 +19,15 @@
 起動時に開くタブは並び順の先頭のタブで、既定では「未分類」。よく使うグループを
 並び順の先頭へドラッグしておくと、そのグループが開いた状態で始まる。
 
+オーバーレイ（全グループパネル・項目登録フォーム）の表示中はフォーカスがその中を循環し、
+`Escape` で閉じると開く前の位置にフォーカスが戻る。
+
 詳細な仕様は [specs/001-quick-copy-items/spec.md](specs/001-quick-copy-items/spec.md)（登録・一覧・マスク・グループの各機能要件）、
 [specs/002-side-panel-ui/spec.md](specs/002-side-panel-ui/spec.md)（サイドパネルUI刷新）、
 [specs/003-sidepanel-list-enhancements/spec.md](specs/003-sidepanel-list-enhancements/spec.md)（並び替え・テーマ手動切替・一括削除）、
 [specs/005-bulk-group-change/spec.md](specs/005-bulk-group-change/spec.md)（選択項目グループ一括変更・選択モード中の個別操作制限）、
-[specs/006-group-navigation/spec.md](specs/006-group-navigation/spec.md)（全グループパネル・グループ並び替え・グループ名の長さ制御）を参照。
+[specs/006-group-navigation/spec.md](specs/006-group-navigation/spec.md)（全グループパネル・グループ並び替え・グループ名の長さ制御）、
+[specs/007-sidepanel-keyboard/spec.md](specs/007-sidepanel-keyboard/spec.md)（キーボード操作・フォーカス管理）を参照。
 
 ## 開発
 
@@ -45,4 +49,5 @@ npm test
 [specs/002-side-panel-ui/quickstart.md](specs/002-side-panel-ui/quickstart.md)、
 [specs/003-sidepanel-list-enhancements/quickstart.md](specs/003-sidepanel-list-enhancements/quickstart.md)、
 [specs/005-bulk-group-change/quickstart.md](specs/005-bulk-group-change/quickstart.md)、
-[specs/006-group-navigation/quickstart.md](specs/006-group-navigation/quickstart.md) を参照。
+[specs/006-group-navigation/quickstart.md](specs/006-group-navigation/quickstart.md)、
+[specs/007-sidepanel-keyboard/quickstart.md](specs/007-sidepanel-keyboard/quickstart.md) を参照。

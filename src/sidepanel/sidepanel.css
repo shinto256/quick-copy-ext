@@ -818,6 +818,13 @@ body {
   background: var(--color-surface);
 }
 
+/* フォーカスリングは box-shadow で要素の外側へ広がるため、後続の行の背景に隠れないよう
+   重なり順だけを上げる。フォーカス表現自体はグローバルな :focus-visible をそのまま使う。 */
+.group-row:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
 /* 絞り込み中は並び替えができないため掴み手を隠す */
 .group-panel-list.filtering .group-row {
   cursor: pointer;
