@@ -6,6 +6,7 @@ import { formatDisplayValue } from "./maskDisplay.js";
 import { filterItemsByTabAndSearch, UNASSIGNED_TAB_ID } from "./itemFilter.js";
 import { initGroupPanel } from "./groupPanel.js";
 import { attachDragReorder } from "./dragReorder.js";
+import { createFocusTrap } from "./focusTrap.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
@@ -116,6 +117,10 @@ function clearItemError() {
   itemErrorEl.hidden = true;
   itemErrorEl.textContent = "";
 }
+
+const itemFormFocusTrap = createFocusTrap(formOverlay, {
+  fallbackFocus: () => addItemButton,
+});
 
 // ---- 一覧（カード）表示 ----
 
@@ -321,6 +326,7 @@ async function openItemForm(item = null) {
   await populateGroupSelect(groupField, defaultGroupId);
 
   formOverlay.hidden = false;
+  itemFormFocusTrap.activate(document.activeElement);
   nameField.focus();
 }
 
@@ -331,6 +337,8 @@ function closeItemForm() {
   idField.value = "";
   clearItemError();
   formOverlay.hidden = true;
+  // 閉じた時点で、開く前にフォーカスしていた要素へ戻す。
+  itemFormFocusTrap.deactivate();
 }
 
 form.addEventListener("submit", async (event) => {
@@ -587,6 +595,14 @@ async function selectTab(groupId) {
   await renderTabs();
   await renderList();
 }
+
+// 項目登録フォームを Escape で閉じる。全グループパネルと挙動を揃える。
+// closeItemForm が form.reset() を行うため入力内容は保存されない。
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && isFormOpen) {
+    closeItemForm();
+  }
+});
 
 document.addEventListener("click", (event) => {
   if (openItemMenuId !== null && !event.target.closest(".item-card-actions")) {

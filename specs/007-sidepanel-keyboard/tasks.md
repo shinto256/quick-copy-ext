@@ -36,7 +36,7 @@ description: "Task list for サイドパネルのキーボード操作対応"
 
 ## Phase 1: Setup
 
-- [ ] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下7ファイル）
+- [X] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下7ファイル）
 
 ---
 
@@ -48,9 +48,9 @@ description: "Task list for サイドパネルのキーボード操作対応"
 
 ### Implementation for User Story 1
 
-- [ ] T002 [US1] `src/sidepanel/groupPanel.js` の `createRow(tabId)` が生成する行に `tabindex = 0` を設定する（`role` は付けない。[contracts/group-panel-keyboard-contract.md](./contracts/group-panel-keyboard-contract.md) の「行の属性」）。`createInputRow` が生成するインライン編集行には `tabindex` を付けない（内部の入力欄が独自にフォーカスを受けるため）
-- [ ] T003 [P] [US1] `src/sidepanel/sidepanel.css` に `.group-row:focus-visible { position: relative; z-index: 1; }` を追加する。フォーカスリングは `box-shadow` で要素の外側へ広がるため、後続の行の背景に隠れないようにする。**フォーカス表現自体は既存のグローバルな `:focus-visible` をそのまま使い、行専用の表現は追加しない**（spec FR-002 / SC-007）
-- [ ] T004 [US1] `src/sidepanel/groupPanel.js` に `#group-panel-list` への `keydown` の委譲を追加し、`Enter` と `Space` で既存の `activateTab(row.dataset.tabId)` を呼ぶ。**`event.target` が行自身でない場合（三点リーダー・入力欄など行の内側）は何もしない**（spec FR-004 / FR-014）。`Space` は `preventDefault()` でページスクロールを抑止する（spec FR-003）
+- [X] T002 [US1] `src/sidepanel/groupPanel.js` の `createRow(tabId)` が生成する行に `tabindex = 0` を設定する（`role` は付けない。[contracts/group-panel-keyboard-contract.md](./contracts/group-panel-keyboard-contract.md) の「行の属性」）。`createInputRow` が生成するインライン編集行には `tabindex` を付けない（内部の入力欄が独自にフォーカスを受けるため）
+- [X] T003 [P] [US1] `src/sidepanel/sidepanel.css` に `.group-row:focus-visible { position: relative; z-index: 1; }` を追加する。フォーカスリングは `box-shadow` で要素の外側へ広がるため、後続の行の背景に隠れないようにする。**フォーカス表現自体は既存のグローバルな `:focus-visible` をそのまま使い、行専用の表現は追加しない**（spec FR-002 / SC-007）
+- [X] T004 [US1] `src/sidepanel/groupPanel.js` に `#group-panel-list` への `keydown` の委譲を追加し、`Enter` と `Space` で既存の `activateTab(row.dataset.tabId)` を呼ぶ。**`event.target` が行自身でない場合（三点リーダー・入力欄など行の内側）は何もしない**（spec FR-004 / FR-014）。`Space` は `preventDefault()` でページスクロールを抑止する（spec FR-003）
 - [ ] T005 [US1] [quickstart.md](./quickstart.md) セクション1「キーボードでグループを切り替える」の手順1〜8を実行し、FR-001 / FR-002 / FR-003 / FR-004 / FR-005 / FR-006 と SC-001 / SC-003 / SC-007 を確認する
 
 **Checkpoint**: キーボードだけでパネルからグループを切り替えられる。spec 004 FR-016 の未達分が解消している
@@ -65,15 +65,15 @@ description: "Task list for サイドパネルのキーボード操作対応"
 
 ### Tests for User Story 2
 
-- [ ] T006 [US2] `tests/unit/listReorder.test.js` を新規作成し、`moveInList` のテスト観点11件（[contracts/list-reorder-contract.md](./contracts/list-reorder-contract.md)）を書く。実装前なので失敗することを確認する
+- [X] T006 [US2] `tests/unit/listReorder.test.js` を新規作成し、`moveInList` のテスト観点11件（[contracts/list-reorder-contract.md](./contracts/list-reorder-contract.md)）を書く。実装前なので失敗することを確認する
 
 ### Implementation for User Story 2
 
-- [ ] T007 [US2] `src/sidepanel/listReorder.js` を新規作成し、`moveInList(list, index, offset)` を実装して T006 をパスさせる（移動先が範囲外、または `index` が範囲外なら順序を変えずに新しい配列を返す。引数は変更しない）
-- [ ] T008 [US2] `src/sidepanel/groupPanel.js` の `handleReorder` を「並び順配列を受け取って保存・再描画・エラー処理を行う」共通の処理に整理する。ドラッグ経路（`onReorder`）とキーボード経路の双方から使えるようにし、**再描画後にフォーカスを戻すかどうかを引数で分ける**
-- [ ] T009 [US2] `src/sidepanel/groupPanel.js` の `keydown`（T004 で追加した委譲）に `Alt` + `↑` / `Alt` + `↓` を追加する。`canReorder()` が `false` の間は並び替えを行わない（spec FR-012 / FR-013）。対象行の `data-tab-id` から現在の並び順内の位置を求め、`moveInList` で新しい並び順を作る（`data-tab-id` は未分類のセンチネルも含むため、**未分類の行も移動の対象になる**。spec FR-010）。**結果が元と同じ（境界に達していた）場合は保存もエラー表示も行わない**（spec FR-011）。`preventDefault()` でブラウザの既定動作を抑止する
-- [ ] T010 [US2] `src/sidepanel/groupPanel.js` に、再描画後に `data-tab-id` が一致する行を探して `focus()` する処理を追加する（spec FR-009。[research.md](./research.md) R-003）。永続化に失敗して保存済みの順序から再描画した場合も、同じ手順で操作していた行へフォーカスを戻す（spec FR-016）
-- [ ] T011 [US2] `npm test` を実行し、`tests/unit/listReorder.test.js` の追加分（T006）と `tests/unit/` の既存テストがすべてパスすることを確認する
+- [X] T007 [US2] `src/sidepanel/listReorder.js` を新規作成し、`moveInList(list, index, offset)` を実装して T006 をパスさせる（移動先が範囲外、または `index` が範囲外なら順序を変えずに新しい配列を返す。引数は変更しない）
+- [X] T008 [US2] `src/sidepanel/groupPanel.js` の `handleReorder` を「並び順配列を受け取って保存・再描画・エラー処理を行う」共通の処理に整理する。ドラッグ経路（`onReorder`）とキーボード経路の双方から使えるようにし、**再描画後にフォーカスを戻すかどうかを引数で分ける**
+- [X] T009 [US2] `src/sidepanel/groupPanel.js` の `keydown`（T004 で追加した委譲）に `Alt` + `↑` / `Alt` + `↓` を追加する。`canReorder()` が `false` の間は並び替えを行わない（spec FR-012 / FR-013）。対象行の `data-tab-id` から現在の並び順内の位置を求め、`moveInList` で新しい並び順を作る（`data-tab-id` は未分類のセンチネルも含むため、**未分類の行も移動の対象になる**。spec FR-010）。**結果が元と同じ（境界に達していた）場合は保存もエラー表示も行わない**（spec FR-011）。`preventDefault()` でブラウザの既定動作を抑止する
+- [X] T010 [US2] `src/sidepanel/groupPanel.js` に、再描画後に `data-tab-id` が一致する行を探して `focus()` する処理を追加する（spec FR-009。[research.md](./research.md) R-003）。永続化に失敗して保存済みの順序から再描画した場合も、同じ手順で操作していた行へフォーカスを戻す（spec FR-016）
+- [X] T011 [US2] `npm test` を実行し、`tests/unit/listReorder.test.js` の追加分（T006）と `tests/unit/` の既存テストがすべてパスすることを確認する
 - [ ] T012 [US2] [quickstart.md](./quickstart.md) セクション2「キーボードでグループを並び替える」の手順1〜14を実行し、FR-007 / FR-008 / FR-009 / FR-010 / FR-011 / FR-012 / FR-013 / FR-014 / FR-015 / FR-016 と SC-002 / SC-004 を確認する
 
 **Checkpoint**: キーボードだけで任意のグループを並び順の先頭へ移動できる
@@ -88,10 +88,10 @@ description: "Task list for サイドパネルのキーボード操作対応"
 
 ### Implementation for User Story 3
 
-- [ ] T013 [US3] `src/sidepanel/focusTrap.js` を新規作成し、`createFocusTrap(overlayEl, options)` が `{ activate, deactivate, isActive }` を返す形で実装する（`document` の `keydown` を capture フェーズで受け、`Tab` / `Shift` + `Tab` が端を越えるときに反対側へ移す。フォーカス可能な要素はキー入力のたびに求める。詳細は [contracts/focus-trap-contract.md](./contracts/focus-trap-contract.md)）
-- [ ] T014 [US3] `src/sidepanel/groupPanel.js` で `createFocusTrap(overlayEl, { fallbackFocus: () => document.querySelector(".tab-panel-open") })` を作り、`open()` で `activate(document.activeElement)`、`close()` で `deactivate()` を呼ぶ。**`fallbackFocus` はセレクタ（`.tab-panel-open`。このボタンに `id` はない）で都度取得する関数にする**（ボタンは `renderTabs()` のたびに作り直されるため、要素の参照を保持すると古い要素を指す）
-- [ ] T015 [US3] `src/sidepanel/sidepanel.js` で `createFocusTrap(formOverlay, { fallbackFocus: () => addItemButton })` を作り、`openItemForm()` の末尾で `activate(document.activeElement)`、`closeItemForm()` で `deactivate()` を呼ぶ。既存の `nameField.focus()` はそのまま維持する
-- [ ] T016 [US3] `src/sidepanel/sidepanel.js` の `document` の `keydown` に `Escape` の処理を追加し、`isFormOpen === true` の間は `closeItemForm()` を呼ぶ（spec FR-020）。既存の `closeItemForm()` は `form.reset()` を行うため入力内容は保存されない
+- [X] T013 [US3] `src/sidepanel/focusTrap.js` を新規作成し、`createFocusTrap(overlayEl, options)` が `{ activate, deactivate, isActive }` を返す形で実装する（`document` の `keydown` を capture フェーズで受け、`Tab` / `Shift` + `Tab` が端を越えるときに反対側へ移す。フォーカス可能な要素はキー入力のたびに求める。詳細は [contracts/focus-trap-contract.md](./contracts/focus-trap-contract.md)）
+- [X] T014 [US3] `src/sidepanel/groupPanel.js` で `createFocusTrap(overlayEl, { fallbackFocus: () => document.querySelector(".tab-panel-open") })` を作り、`open()` で `activate(document.activeElement)`、`close()` で `deactivate()` を呼ぶ。**`fallbackFocus` はセレクタ（`.tab-panel-open`。このボタンに `id` はない）で都度取得する関数にする**（ボタンは `renderTabs()` のたびに作り直されるため、要素の参照を保持すると古い要素を指す）
+- [X] T015 [US3] `src/sidepanel/sidepanel.js` で `createFocusTrap(formOverlay, { fallbackFocus: () => addItemButton })` を作り、`openItemForm()` の末尾で `activate(document.activeElement)`、`closeItemForm()` で `deactivate()` を呼ぶ。既存の `nameField.focus()` はそのまま維持する
+- [X] T016 [US3] `src/sidepanel/sidepanel.js` の `document` の `keydown` に `Escape` の処理を追加し、`isFormOpen === true` の間は `closeItemForm()` を呼ぶ（spec FR-020）。既存の `closeItemForm()` は `form.reset()` を行うため入力内容は保存されない
 - [ ] T017 [US3] [quickstart.md](./quickstart.md) セクション3「オーバーレイのフォーカス管理」の手順1〜14を実行し、FR-017 / FR-018 / FR-019 / FR-020 / FR-021 と SC-005 / SC-006 を確認する。**FR-021（インライン編集中の `Escape` は編集取消を優先）は既存実装（入力欄の `keydown` が `stopPropagation()` する）で満たされるため、実装変更は不要。維持されていることの確認のみ行う**
 
 **Checkpoint**: 3つのユーザーストーリーがすべて独立して動作する
@@ -100,10 +100,10 @@ description: "Task list for サイドパネルのキーボード操作対応"
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T018 [P] `README.md` の「機能」節に、全グループパネルのキーボード操作（行のフォーカスと決定キーでの切替、`Alt` + 矢印による並び替え）を追記する。あわせて `specs/007-sidepanel-keyboard/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
+- [X] T018 [P] `README.md` の「機能」節に、全グループパネルのキーボード操作（行のフォーカスと決定キーでの切替、`Alt` + 矢印による並び替え）を追記する。あわせて `specs/007-sidepanel-keyboard/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
 - [ ] T019 [quickstart.md](./quickstart.md) セクション4「既存機能の回帰確認」の手順1〜9を**マウスを使って**実行し、ポインタ操作（タップでの切替、ドラッグでの並び替え、5px閾値の判定、三点リーダー、項目カードのドラッグとコピー、`▲▼`）に回帰がないことを確認する（spec SC-008）
-- [ ] T020 [quickstart.md](./quickstart.md) セクション5「自動テストの実行」に従い `npm test` を実行し、`tests/unit/` の全テスト（新規 `listReorder.test.js` を含む）がパスすることを確認する
-- [ ] T021 `npx reqord impact analyze req-000011` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
+- [X] T020 [quickstart.md](./quickstart.md) セクション5「自動テストの実行」に従い `npm test` を実行し、`tests/unit/` の全テスト（新規 `listReorder.test.js` を含む）がパスすることを確認する
+- [X] T021 `npx reqord impact analyze req-000011` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
 
 ---
 

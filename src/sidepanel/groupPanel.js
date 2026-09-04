@@ -7,6 +7,8 @@ import * as ItemRepository from "../storage/itemRepository.js";
 import { UNASSIGNED_TAB_ID } from "../storage/tabOrder.js";
 import { ValidationError } from "../storage/errors.js";
 import { attachDragReorder } from "./dragReorder.js";
+import { moveInList } from "./listReorder.js";
+import { createFocusTrap } from "./focusTrap.js";
 
 const overlayEl = document.getElementById("group-panel-overlay");
 const filterEl = document.getElementById("group-panel-filter");
@@ -17,6 +19,10 @@ const addButton = document.getElementById("group-panel-add");
 const errorEl = document.getElementById("group-panel-error");
 
 let callbacks = null;
+
+const focusTrap = createFocusTrap(overlayEl, {
+  fallbackFocus: () => document.querySelector(".tab-panel-open"),
+});
 
 // 画面内一時状態（chrome.storage.localには保存しない。data-model.md参照）
 let panelOpen = false;
@@ -92,6 +98,10 @@ function createRow(tabId) {
   const row = document.createElement("li");
   row.className = "group-row";
   row.dataset.tabId = tabId;
+  // 各行を1つのタブストップにする。フォーカス表現はグローバルな :focus-visible が
+  // そのまま適用されるので、行専用のスタイルは足さない。
+  // role は付けない（矢印単独をリスト内移動に割り当てないため、listbox/option の期待と合わない）。
+  row.tabIndex = 0;
   if (tabId === UNASSIGNED_TAB_ID) {
     row.classList.add("unassigned");
   }
@@ -313,19 +323,51 @@ async function deleteGroup(tabId) {
   await refresh();
 }
 
-async function handleReorder(orderedRows) {
+// 再描画で行のDOM要素は作り直されるため、同じ要素へは戻せない。
+// data-tab-id は再描画をまたいで同じ行を一意に指すので、これを鍵にフォーカスを戻す。
+function focusRow(tabId) {
+  const row = listEl.querySelector(`.group-row[data-tab-id="${CSS.escape(tabId)}"]`);
+  row?.focus();
+}
+
+// 並び順の保存・再描画・エラー処理。ドラッグ経路とキーボード経路の双方から使う。
+// focusTabId を渡すと、再描画後にその行へフォーカスを戻す（キーボード経路のため）。
+async function applyOrder(orderedTabIds, focusTabId = null) {
   clearError();
-  const orderedTabIds = orderedRows.map((row) => row.dataset.tabId);
   try {
     await GroupRepository.reorderTabs(orderedTabIds);
     tabOrder = orderedTabIds;
+    if (focusTabId !== null) {
+      renderList();
+      focusRow(focusTabId);
+    }
     await callbacks.onTabsChanged();
   } catch (error) {
     // 画面上は並び替わったのに保存されていない状態を残さない。保存済みの順序から作り直す。
     showError("並び順の保存に失敗しました。表示を保存済みの状態に戻します。");
     await loadData();
     renderList();
+    if (focusTabId !== null) {
+      focusRow(focusTabId);
+    }
   }
+}
+
+function handleReorder(orderedRows) {
+  return applyOrder(orderedRows.map((row) => row.dataset.tabId));
+}
+
+// フォーカスした行を1つ上/下へ移動する。境界に達している場合は保存もエラー表示も行わない。
+function moveRow(tabId, offset) {
+  const index = tabOrder.indexOf(tabId);
+  if (index === -1) {
+    return;
+  }
+  const next = moveInList(tabOrder, index, offset);
+  if (next.every((id, i) => id === tabOrder[i])) {
+    return;
+  }
+  applyOrder(next, tabId);
 }
 
 // 選択中のタブが表示範囲の中央付近に来るまでスクロールする。
@@ -350,6 +392,7 @@ async function open() {
   renderList();
   panelOpen = true;
   overlayEl.hidden = false;
+  focusTrap.activate(document.activeElement);
   filterEl.focus();
   scrollToCurrentRow();
 }
@@ -364,11 +407,36 @@ function close() {
   editingTabId = null;
   creatingGroup = false;
   clearError();
+  // 閉じた時点で、開く前にフォーカスしていた要素へ戻す。
+  focusTrap.deactivate();
 }
 
 async function activateTab(tabId) {
   close();
   await callbacks.onSelectTab(tabId);
+}
+
+function handleRowKeydown(event, row) {
+  const tabId = row.dataset.tabId;
+  if (!tabId) {
+    return;
+  }
+
+  if (event.key === "Enter" || event.key === " ") {
+    // Space はページスクロールの既定動作を持つので抑止する。
+    event.preventDefault();
+    activateTab(tabId);
+    return;
+  }
+
+  // Alt + 矢印で並び替え。絞り込み中・インライン編集中はドラッグと同じ条件で無効。
+  if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+    event.preventDefault();
+    if (!canReorder()) {
+      return;
+    }
+    moveRow(tabId, event.key === "ArrowUp" ? -1 : 1);
+  }
 }
 
 export function initGroupPanel(options) {
@@ -404,6 +472,16 @@ export function initGroupPanel(options) {
       return;
     }
     close();
+  });
+
+  // 行のキーボード操作。行自身にフォーカスがあるときだけ扱い、行内の三点リーダーや
+  // 入力欄にフォーカスがある場合は何もしない（入力欄の Enter / Alt+矢印を奪わないため）。
+  listEl.addEventListener("keydown", (event) => {
+    const row = event.target.closest?.(".group-row");
+    if (!row || event.target !== row) {
+      return;
+    }
+    handleRowKeydown(event, row);
   });
 
   // タップ（グループ切替）とドラッグ（並び替え）は同じポインタ操作なので、
