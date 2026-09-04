@@ -8,6 +8,7 @@
 - タブ（グループ）+カード形式の一覧表示とワンクリックコピー（値はデフォルトでマスク表示）
 - マスク表示のON/OFF切替（ヘッダーに常時表示、状態は保持）
 - 全グループパネル：タブバー末尾の「▾」から未分類を含む全タブを縦リストで一覧し、グループ名で絞り込んで切り替え（キーボードのみでも操作可能。行にフォーカスして `Enter` / `Space` で切替、`Alt` + `↑` / `↓` で並び替え）
+- タブバーは横スクロールしない。幅に収まらないタブは表示せず、全グループパネルから到達する。サイドパネルの幅を広げると収まるタブが表示される（選択中のタブは必ず表示される）
 - グループの作成・名称編集・削除（全グループパネル内で完結。グループを削除すると所属する項目も削除される）
 - グループのドラッグ&ドロップによる並び替え（未分類も対象。並び順がタブ順と起動時に開くタブになる）
 - 項目名での検索絞り込み
@@ -36,7 +37,8 @@
 [specs/006-group-navigation/spec.md](specs/006-group-navigation/spec.md)（全グループパネル・グループ並び替え・グループ名の長さ制御）、
 [specs/007-sidepanel-keyboard/spec.md](specs/007-sidepanel-keyboard/spec.md)（キーボード操作・フォーカス管理）、
 [specs/008-item-reorder-unification/spec.md](specs/008-item-reorder-unification/spec.md)（項目並び替え操作の統一）、
-[specs/009-item-reorder-handle/spec.md](specs/009-item-reorder-handle/spec.md)（項目カードの並び替えハンドル）を参照。
+[specs/009-item-reorder-handle/spec.md](specs/009-item-reorder-handle/spec.md)（項目カードの並び替えハンドル）、
+[specs/010-tab-overflow/spec.md](specs/010-tab-overflow/spec.md)（タブバーの横スクロール廃止と幅追従表示）を参照。
 
 ## 開発
 
@@ -61,4 +63,5 @@ npm test
 [specs/006-group-navigation/quickstart.md](specs/006-group-navigation/quickstart.md)、
 [specs/007-sidepanel-keyboard/quickstart.md](specs/007-sidepanel-keyboard/quickstart.md)、
 [specs/008-item-reorder-unification/quickstart.md](specs/008-item-reorder-unification/quickstart.md)、
-[specs/009-item-reorder-handle/quickstart.md](specs/009-item-reorder-handle/quickstart.md) を参照。
+[specs/009-item-reorder-handle/quickstart.md](specs/009-item-reorder-handle/quickstart.md)、
+[specs/010-tab-overflow/quickstart.md](specs/010-tab-overflow/quickstart.md) を参照。

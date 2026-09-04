@@ -37,7 +37,7 @@ DOMの計測・`hidden` の付け外し・`ResizeObserver` の配線はDOM操作
 
 ## Phase 1: Setup
 
-- [ ] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下8ファイル・166テスト）
+- [X] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下8ファイル・166テスト）
 
 ---
 
@@ -49,18 +49,18 @@ DOMの計測・`hidden` の付け外し・`ResizeObserver` の配線はDOM操作
 
 ### Tests
 
-- [ ] T002 [US1] `tests/unit/tabOverflow.test.js` を新規作成し、`visibleTabIndexes` のテスト観点（[contracts/tab-overflow-contract.md](./contracts/tab-overflow-contract.md) の「テスト観点」の全項目）を書く。**全部収まる / 一部だけ収まる / 1つも収まらない、選択中のタブが収まる位置にある / ない、`gap` の境界、非破壊、タブ51個の上限規模**を含める。実装前なので失敗することを確認する
+- [X] T002 [US1] `tests/unit/tabOverflow.test.js` を新規作成し、`visibleTabIndexes` のテスト観点（[contracts/tab-overflow-contract.md](./contracts/tab-overflow-contract.md) の「テスト観点」の全項目）を書く。**全部収まる / 一部だけ収まる / 1つも収まらない、選択中のタブが収まる位置にある / ない、`gap` の境界、非破壊、タブ51個の上限規模**を含める。実装前なので失敗することを確認する
 
 ### Implementation
 
-- [ ] T003 [US1] `src/sidepanel/tabOverflow.js` を新規作成し、`visibleTabIndexes(tabWidths, availableWidth, gap, selectedIndex)` を実装して T002 をパスさせる。ルールは4手順（先頭から詰める → 選択中が含まれればそのまま返す → 含まれなければ選択中の幅を確保して詰め直す → 選択中すら収まらなければ選択中のみ）。`Set` を返す。引数は変更しない
-- [ ] T004 [P] [US1] `src/sidepanel/sidepanel.css` の `.tabs` の `overflow-x: auto` を `overflow: hidden` に変更する（spec FR-001）。あわせて `.tab-panel-open` から `position: sticky` と `right: 0` を撤去する（横スクロールがなくなり不要。`margin-left: auto` は残す。[research.md](./research.md) R-004）
-- [ ] T005 [US1] `src/sidepanel/sidepanel.js` に、描画済みのタブの幅を測って表示可否を適用する処理を追加する。各タブの `getBoundingClientRect().width` を測り、タブバーの内容領域の幅から末尾のボタンの幅とその前の `gap` を差し引いて `availableWidth` を求め、`visibleTabIndexes` の結果に含まれないタブに `hidden` 属性を付ける（末尾のボタンには付けない。spec FR-002 / FR-003 / FR-006）。`gap` は `getComputedStyle` から実測する
-- [ ] T006 [US3] `src/sidepanel/sidepanel.js` の上記処理で、選択中のタブの位置（`selectedTabId` に一致するタブのインデックス）を `visibleTabIndexes` に渡す。該当がなければ `-1` を渡す（spec FR-005 / FR-008）
-- [ ] T007 [US1] `src/sidepanel/sidepanel.js` の `renderTabs()` の末尾で、T005 の処理を呼ぶ。**全タブを描画した直後に一度だけ幅を測る**（隠す前に測るので、隠す予定のタブも正しい幅が取れる。[research.md](./research.md) R-001）
-- [ ] T008 [US2] `src/sidepanel/sidepanel.js` に、直近に測った幅の配列とタブ要素の配列をモジュールスコープで保持する処理を追加する。`ResizeObserver` の通知でこれを使い回し、DOMを作り直さずに表示可否だけを再計算できるようにする（[research.md](./research.md) R-002）
-- [ ] T009 [US2] `src/sidepanel/sidepanel.js` に `ResizeObserver` を追加してタブバー（`tabsEl`）を監視する。通知を受けたら表示可否だけを再計算する。**タブバーの幅が0のときは何もしない**（サイドパネルが表示されていない状態。spec Edge Cases。[research.md](./research.md) R-002）
-- [ ] T010 `npm test` を実行し、`tests/unit/tabOverflow.test.js` の追加分（T002）と `tests/unit/` の既存テストがすべてパスすることを確認する
+- [X] T003 [US1] `src/sidepanel/tabOverflow.js` を新規作成し、`visibleTabIndexes(tabWidths, availableWidth, gap, selectedIndex)` を実装して T002 をパスさせる。ルールは4手順（先頭から詰める → 選択中が含まれればそのまま返す → 含まれなければ選択中の幅を確保して詰め直す → 選択中すら収まらなければ選択中のみ）。`Set` を返す。引数は変更しない
+- [X] T004 [P] [US1] `src/sidepanel/sidepanel.css` の `.tabs` の `overflow-x: auto` を `overflow: hidden` に変更する（spec FR-001）。あわせて `.tab-panel-open` から `position: sticky` と `right: 0` を撤去する（横スクロールがなくなり不要。`margin-left: auto` は残す。[research.md](./research.md) R-004）
+- [X] T005 [US1] `src/sidepanel/sidepanel.js` に、描画済みのタブの幅を測って表示可否を適用する処理を追加する。各タブの `getBoundingClientRect().width` を測り、タブバーの内容領域の幅から末尾のボタンの幅とその前の `gap` を差し引いて `availableWidth` を求め、`visibleTabIndexes` の結果に含まれないタブに `hidden` 属性を付ける（末尾のボタンには付けない。spec FR-002 / FR-003 / FR-006）。`gap` は `getComputedStyle` から実測する
+- [X] T006 [US3] `src/sidepanel/sidepanel.js` の上記処理で、選択中のタブの位置（`selectedTabId` に一致するタブのインデックス）を `visibleTabIndexes` に渡す。該当がなければ `-1` を渡す（spec FR-005 / FR-008）
+- [X] T007 [US1] `src/sidepanel/sidepanel.js` の `renderTabs()` の末尾で、T005 の処理を呼ぶ。**全タブを描画した直後に一度だけ幅を測る**（隠す前に測るので、隠す予定のタブも正しい幅が取れる。[research.md](./research.md) R-001）
+- [X] T008 [US2] `src/sidepanel/sidepanel.js` に、直近に測った幅の配列とタブ要素の配列をモジュールスコープで保持する処理を追加する。`ResizeObserver` の通知でこれを使い回し、DOMを作り直さずに表示可否だけを再計算できるようにする（[research.md](./research.md) R-002）
+- [X] T009 [US2] `src/sidepanel/sidepanel.js` に `ResizeObserver` を追加してタブバー（`tabsEl`）を監視する。通知を受けたら表示可否だけを再計算する。**タブバーの幅が0のときは何もしない**（サイドパネルが表示されていない状態。spec Edge Cases。[research.md](./research.md) R-002）
+- [X] T010 `npm test` を実行し、`tests/unit/tabOverflow.test.js` の追加分（T002）と `tests/unit/` の既存テストがすべてパスすることを確認する
 - [ ] T011 [US1] [quickstart.md](./quickstart.md) セクション1「横スクロールバーが出ない」の手順1〜7を実行し、FR-001 / FR-003 / FR-006 / FR-007 / FR-013 / FR-014 と SC-001 / SC-002 / SC-005 / SC-006 / SC-007 / SC-008 を確認する
 - [ ] T012 [US2] [quickstart.md](./quickstart.md) セクション2「幅を変えると表示が追従する」の手順1〜8を実行し、FR-004 / FR-009 / FR-010 / FR-011 / FR-012 と SC-003 を確認する
 - [ ] T013 [US3] [quickstart.md](./quickstart.md) セクション3「いま見ているグループが分かる」の手順1〜8を実行し、FR-005 / FR-008 と SC-004 を確認する。**手順3（隠れていたグループへ切り替えるとそのタブが表示される）と手順5（先頭のグループでは他が余分に隠れない）が本specで最も壊れやすい部分**
@@ -71,10 +71,10 @@ DOMの計測・`hidden` の付け外し・`ResizeObserver` の配線はDOM操作
 
 ## Phase 3: Polish & Cross-Cutting Concerns
 
-- [ ] T014 [P] `specs/006-group-navigation/spec.md` の該当箇所（タブバーの横スクロールを前提にした記述）に、本spec（`010-tab-overflow`）で置き換わった旨を追記する。**同spec FR-006（全グループパネルの縦リストで全件を確認できる）は変更していないことを明示する**（「スクロール」がどちらの話か曖昧にしないため）
-- [ ] T015 [P] `README.md` のタブバーに関する記述を更新する。幅に収まらないタブは表示せず全グループパネルから到達すること、選択中のタブは必ず表示されることを追記する。あわせて `specs/010-tab-overflow/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
+- [X] T014 [P] `specs/006-group-navigation/spec.md` の該当箇所（タブバーの横スクロールを前提にした記述）に、本spec（`010-tab-overflow`）で置き換わった旨を追記する。**同spec FR-006（全グループパネルの縦リストで全件を確認できる）は変更していないことを明示する**（「スクロール」がどちらの話か曖昧にしないため）
+- [X] T015 [P] `README.md` のタブバーに関する記述を更新する。幅に収まらないタブは表示せず全グループパネルから到達すること、選択中のタブは必ず表示されることを追記する。あわせて `specs/010-tab-overflow/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
 - [ ] T016 [quickstart.md](./quickstart.md) セクション4「既存機能の回帰確認」の手順1〜9を実行し、タブの切替・選択中の見た目・末尾省略・全グループパネルの各機能・項目一覧の各機能に回帰がないことを確認する
-- [ ] T017 `npx reqord impact analyze req-000014` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
+- [X] T017 `npx reqord impact analyze req-000014` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
 
 ---
 
