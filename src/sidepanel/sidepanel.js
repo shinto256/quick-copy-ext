@@ -8,6 +8,7 @@ import { initGroupPanel } from "./groupPanel.js";
 import { attachDragReorder } from "./dragReorder.js";
 import { createFocusTrap } from "./focusTrap.js";
 import { isActivationKey, moveInList, reorderOffsetFromKey } from "./listReorder.js";
+import { visibleTabIndexes } from "./tabOverflow.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
@@ -524,6 +525,60 @@ async function renderTabs() {
   }
 
   tabsEl.appendChild(createPanelOpenButton(tabOrder.length));
+
+  measureTabs();
+  applyTabOverflow();
+}
+
+// 直近の renderTabs で測ったタブの幅と要素。ResizeObserver の通知では
+// これを使い回し、DOMを作り直さずに表示可否だけを再計算する。
+let measuredTabs = [];
+let panelButtonWidth = 0;
+let tabsGap = 0;
+
+// 描画済みのタブの幅を測る。全タブを描画した直後に一度だけ呼ぶ。
+// 隠す前に測るので、隠す予定のタブも正しい幅が取れる。
+function measureTabs() {
+  const panelButton = tabsEl.querySelector(".tab-panel-open");
+  const tabButtons = Array.prototype.slice.call(tabsEl.querySelectorAll(".tab-button"));
+  measuredTabs = tabButtons.map((el) => ({
+    el,
+    tabId: el.dataset.tabId,
+    width: el.getBoundingClientRect().width,
+  }));
+  panelButtonWidth = panelButton ? panelButton.getBoundingClientRect().width : 0;
+  tabsGap = Number.parseFloat(getComputedStyle(tabsEl).columnGap) || 0;
+}
+
+// 幅に収まらないタブを hidden にする。hidden はレイアウトから外れるため、
+// タブバーの幅に影響せずキーボードのフォーカス移動の対象にもならない。
+function applyTabOverflow() {
+  if (measuredTabs.length === 0) {
+    return;
+  }
+  const style = getComputedStyle(tabsEl);
+  const inner =
+    tabsEl.clientWidth -
+    (Number.parseFloat(style.paddingLeft) || 0) -
+    (Number.parseFloat(style.paddingRight) || 0);
+  // サイドパネルが表示されていない状態（幅が0）では計算しない。
+  if (inner <= 0) {
+    return;
+  }
+
+  // 末尾のボタンは常に表示するため、その幅とその前の gap を先に差し引く。
+  const available = inner - panelButtonWidth - tabsGap;
+  const selectedIndex = measuredTabs.findIndex((tab) => tab.tabId === selectedTabId);
+  const visible = visibleTabIndexes(
+    measuredTabs.map((tab) => tab.width),
+    available,
+    tabsGap,
+    selectedIndex,
+  );
+
+  measuredTabs.forEach((tab, index) => {
+    tab.el.hidden = !visible.has(index);
+  });
 }
 
 // タブバー末尾に固定表示する、全グループパネルを開くボタン。
@@ -544,6 +599,7 @@ function createPanelOpenButton(tabCount) {
 function createTabElement(groupId, label) {
   const button = document.createElement("button");
   button.type = "button";
+  button.dataset.tabId = groupId;
   const isSelected = selectedTabId === groupId;
   button.className = "tab-button" + (isSelected ? " active" : "");
   if (isSelected) {
@@ -717,6 +773,10 @@ const groupPanel = initGroupPanel({
   onTabsChanged: () => renderTabs(),
   onItemsChanged: () => renderList(),
 });
+
+// タブバーの幅の変化に追従する。通知では表示可否だけを再計算し、renderTabs は呼ばない
+// （ストレージの読み出しとDOMの再構築がドラッグ中に繰り返されるのを避ける）。
+new ResizeObserver(() => applyTabOverflow()).observe(tabsEl);
 
 // ---- 初期化 ----
 
