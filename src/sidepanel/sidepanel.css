@@ -441,31 +441,15 @@ body {
   border-color: var(--color-accent);
 }
 
+/* フォーカスリングは box-shadow で要素の外側へ広がるため、隣のカードに隠れないよう
+   重なり順だけを上げる。フォーカス表現自体はグローバルな :focus-visible をそのまま使う。 */
+.item-card:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
 .item-card.copyable {
   cursor: pointer;
-}
-
-.reorder-controls {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-.reorder-button {
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-oneline);
-  padding: 0 var(--space-1);
-  border-radius: var(--radius-control);
-  cursor: pointer;
-}
-
-.reorder-button:hover {
-  color: var(--color-text);
 }
 
 .item-card-main {

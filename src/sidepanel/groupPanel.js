@@ -7,7 +7,7 @@ import * as ItemRepository from "../storage/itemRepository.js";
 import { UNASSIGNED_TAB_ID } from "../storage/tabOrder.js";
 import { ValidationError } from "../storage/errors.js";
 import { attachDragReorder } from "./dragReorder.js";
-import { moveInList } from "./listReorder.js";
+import { isActivationKey, moveInList, reorderOffsetFromKey } from "./listReorder.js";
 import { createFocusTrap } from "./focusTrap.js";
 
 const overlayEl = document.getElementById("group-panel-overlay");
@@ -422,20 +422,21 @@ function handleRowKeydown(event, row) {
     return;
   }
 
-  if (event.key === "Enter" || event.key === " ") {
+  if (isActivationKey(event)) {
     // Space はページスクロールの既定動作を持つので抑止する。
     event.preventDefault();
     activateTab(tabId);
     return;
   }
 
-  // Alt + 矢印で並び替え。絞り込み中・インライン編集中はドラッグと同じ条件で無効。
-  if (event.altKey && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+  // 並び替え。絞り込み中・インライン編集中はドラッグと同じ条件で無効。
+  const offset = reorderOffsetFromKey(event);
+  if (offset !== null) {
     event.preventDefault();
     if (!canReorder()) {
       return;
     }
-    moveRow(tabId, event.key === "ArrowUp" ? -1 : 1);
+    moveRow(tabId, offset);
   }
 }
 

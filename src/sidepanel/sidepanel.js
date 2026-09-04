@@ -7,6 +7,7 @@ import { filterItemsByTabAndSearch, UNASSIGNED_TAB_ID } from "./itemFilter.js";
 import { initGroupPanel } from "./groupPanel.js";
 import { attachDragReorder } from "./dragReorder.js";
 import { createFocusTrap } from "./focusTrap.js";
+import { isActivationKey, moveInList, reorderOffsetFromKey } from "./listReorder.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
@@ -142,6 +143,10 @@ function createItemCard(item, maskEnabled) {
   const li = document.createElement("li");
   li.className = "item-card";
   li.dataset.itemId = item.id;
+  // カードを1つのタブストップにする。フォーカス表現はグローバルな :focus-visible が
+  // そのまま適用されるので、カード専用のスタイルは足さない。
+  // role は付けない（グループの縦リストの行と同じ方式）。
+  li.tabIndex = 0;
 
   if (selectionMode) {
     const checkbox = document.createElement("input");
@@ -158,35 +163,6 @@ function createItemCard(item, maskEnabled) {
       updateSelectionToolbar();
     });
     li.appendChild(checkbox);
-  }
-
-  if (!searchTerm && !selectionMode) {
-    const reorder = document.createElement("div");
-    reorder.className = "reorder-controls";
-
-    const moveUpButton = document.createElement("button");
-    moveUpButton.type = "button";
-    moveUpButton.className = "reorder-button";
-    moveUpButton.textContent = "▲";
-    moveUpButton.setAttribute("aria-label", `${item.name}を上に移動`);
-    moveUpButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      moveItem(item, -1);
-    });
-    reorder.appendChild(moveUpButton);
-
-    const moveDownButton = document.createElement("button");
-    moveDownButton.type = "button";
-    moveDownButton.className = "reorder-button";
-    moveDownButton.textContent = "▼";
-    moveDownButton.setAttribute("aria-label", `${item.name}を下に移動`);
-    moveDownButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      moveItem(item, 1);
-    });
-    reorder.appendChild(moveDownButton);
-
-    li.appendChild(reorder);
   }
 
   const main = document.createElement("div");
@@ -270,19 +246,6 @@ function createItemCard(item, maskEnabled) {
 
   li.appendChild(actions);
   return li;
-}
-
-async function moveItem(item, offset) {
-  openItemMenuId = null;
-  const ids = getVisibleItemIds();
-  const index = ids.indexOf(item.id);
-  const targetIndex = index + offset;
-  if (index === -1 || targetIndex < 0 || targetIndex >= ids.length) {
-    await renderList();
-    return;
-  }
-  [ids[index], ids[targetIndex]] = [ids[targetIndex], ids[index]];
-  await persistReorder(ids);
 }
 
 async function deleteItem(item) {
@@ -649,7 +612,7 @@ attachDragReorder(listEl, {
   rowSelector: ".item-card",
   // 項目一覧は #item-list 自身ではなくドキュメントがスクロールする。
   scrollContainer: document.scrollingElement,
-  ignoreSelector: ".copy-button, .kebab-button, .item-menu, .reorder-controls, .item-checkbox",
+  ignoreSelector: ".copy-button, .kebab-button, .item-menu, .item-checkbox",
   canDrag: () => !searchTerm && !selectionMode,
   onActivate: async (row) => {
     // 選択モード中はコピーを行わない（spec 005）。
@@ -669,6 +632,67 @@ attachDragReorder(listEl, {
   },
   onReorder: (orderedRows) => persistReorder(orderedRows.map((row) => row.dataset.itemId)),
 });
+
+// カードのキーボード操作。並び替えのキーはグループの縦リストと同一（listReorder.js で共有）。
+// event.target がカード自身でない場合（コピーボタン・三点リーダー・チェックボックス）は
+// 何もしない。それぞれの通常の操作を奪わないため。
+listEl.addEventListener("keydown", (event) => {
+  const card = event.target.closest?.(".item-card");
+  if (!card || event.target !== card) {
+    return;
+  }
+  // 検索絞り込み中と選択モード中は、ドラッグと同じ条件で並び替え・コピーとも行わない。
+  if (searchTerm || selectionMode) {
+    return;
+  }
+
+  if (isActivationKey(event)) {
+    // Space はページスクロールの既定動作を持つので抑止する。
+    event.preventDefault();
+    copyCardValue(card);
+    return;
+  }
+
+  const offset = reorderOffsetFromKey(event);
+  if (offset !== null) {
+    event.preventDefault();
+    moveCard(card.dataset.itemId, offset);
+  }
+});
+
+async function copyCardValue(card) {
+  const item = visibleItemsById.get(card.dataset.itemId);
+  if (!item) {
+    return;
+  }
+  if (await copyValue(item.value)) {
+    const copyButton = card.querySelector(".copy-button");
+    if (copyButton) {
+      markCopied(copyButton);
+    }
+  }
+}
+
+// 再描画でカードのDOM要素は作り直されるため、同じ要素へは戻せない。
+// data-item-id は再描画をまたいで同じ項目を一意に指すので、これを鍵にフォーカスを戻す。
+function focusCard(itemId) {
+  listEl.querySelector(`.item-card[data-item-id="${CSS.escape(itemId)}"]`)?.focus();
+}
+
+// フォーカスしたカードを1つ上/下へ移動する。境界に達している場合は何もしない。
+async function moveCard(itemId, offset) {
+  const ids = getVisibleItemIds();
+  const index = ids.indexOf(itemId);
+  if (index === -1) {
+    return;
+  }
+  const next = moveInList(ids, index, offset);
+  if (next.every((id, i) => id === ids[i])) {
+    return;
+  }
+  await persistReorder(next);
+  focusCard(itemId);
+}
 
 // ---- 全グループパネル ----
 
