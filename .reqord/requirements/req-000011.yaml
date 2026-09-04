@@ -1,0 +1,30 @@
+id: req-000011
+version: '1.0'
+title: サイドパネルのキーボード操作対応
+status: approved
+priority: high
+createdAt: 2026-09-04T08:31:04.535Z
+updatedAt: 2026-09-04T08:32:31.806Z
+versionHistory: []
+files:
+  description: requirements/req-000011/description.md
+  supplementary: []
+successCriteria:
+  - 全グループパネルの縦リストの100%の行がキーボードでフォーカスでき、フォーカス位置が視覚的に判別できる。
+  - キーボード操作のみで、任意のグループを並び順の先頭へ移動できる。
+  - キーボード操作のみで、パネルを開いてから任意のグループへ切り替えるまでを完了できる。
+  - 絞り込み中およびインライン編集中は、キーボードによる並び替えが100%無効になる。
+  - オーバーレイ表示中、フォーカスが背後の要素へ移動する事象が0件である。
+  - オーバーレイを閉じた後、フォーカスが開く操作を行った要素に戻る割合が100%である。
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo:
+    - req-000005
+    - req-000008
+    - req-000010
