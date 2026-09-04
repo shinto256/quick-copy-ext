@@ -1,4 +1,6 @@
-export const UNASSIGNED_TAB_ID = "__unassigned__";
+import { UNASSIGNED_TAB_ID } from "../storage/tabOrder.js";
+
+export { UNASSIGNED_TAB_ID };
 
 export function filterItemsByTabAndSearch(items, selectedGroupId, searchTerm) {
   const byGroup = items.filter((item) =>

@@ -266,44 +266,6 @@ body {
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.tab-wrapper {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex: none;
-}
-
-.tab-rename-input {
-  width: 120px;
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-full);
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-dense);
-  background: var(--color-surface);
-  color: var(--color-text);
-}
-
-.tab-menu {
-  display: flex;
-  gap: var(--space-2);
-  margin-left: var(--space-1);
-}
-
-.tab-menu button {
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-oneline);
-  letter-spacing: var(--letter-spacing-std);
-  padding: var(--space-1) var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  color: var(--color-text);
-  cursor: pointer;
-}
-
 .tab-button {
   flex: none;
   padding: var(--space-2) var(--space-3);
@@ -317,43 +279,16 @@ body {
   letter-spacing: var(--letter-spacing-std);
   cursor: pointer;
   white-space: nowrap;
+  /* 長い名前でタブ幅を占有させない。全文はtitle属性と全グループパネルの縦リストで読める。 */
+  max-width: 10em;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tab-button.active {
   background: var(--color-tab-active-bg);
   color: var(--color-accent);
   font-weight: 700;
-}
-
-.tab-add {
-  flex: none;
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  border-radius: var(--radius-full);
-  background: transparent;
-  color: var(--color-text-muted);
-  font-family: inherit;
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-oneline);
-  cursor: pointer;
-}
-
-.tab-add:hover {
-  background: var(--color-hover-overlay);
-}
-
-.tab-menu-button {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  padding: 0 var(--space-1);
-  font-size: var(--font-size-base);
-  border-radius: var(--radius-control);
-  color: inherit;
-}
-
-.tab-menu-button:hover {
-  background: var(--color-hover-overlay);
 }
 
 .selection-toolbar {
@@ -697,4 +632,255 @@ body {
   border-color: var(--color-accent);
   color: var(--color-accent-contrast);
   font-weight: 700;
+}
+
+/* ---- 全グループパネル（006-group-navigation） ---- */
+
+/* 縦リストの行高。dragReorderは行高が一定であることを前提にするため、
+   行の中身（インライン入力欄を含む）でこの高さが変わらないようにする。 */
+.group-panel-overlay {
+  --group-row-height: 44px;
+  align-items: stretch;
+  padding: 0;
+}
+
+.group-panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.group-panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.group-panel-filter {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.group-panel-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.group-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--group-row-height);
+  box-sizing: border-box;
+  padding: 0 var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  cursor: pointer;
+  /* ドラッグ中にコンテナのスクロールへポインタを取られないようにする */
+  touch-action: none;
+  will-change: transform;
+}
+
+.group-row.current {
+  background: var(--color-tab-active-bg);
+}
+
+.group-row-handle {
+  flex: none;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.group-row-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.group-row.unassigned .group-row-name {
+  color: var(--color-text-muted);
+}
+
+.group-row.current .group-row-name {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.group-row-count {
+  flex: none;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.group-panel-add {
+  flex: none;
+  padding: var(--space-3);
+  border: none;
+  border-top: 1px solid var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-accent);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  line-height: var(--line-height-oneline);
+  text-align: left;
+  cursor: pointer;
+}
+
+.group-panel-add:hover {
+  background: var(--color-hover-overlay);
+}
+
+.group-panel-add[hidden] {
+  display: none;
+}
+
+/* タブバー末尾のパネルを開くボタン。タブの横スクロールに追従せず常に見える。 */
+.tab-panel-open {
+  flex: none;
+  position: sticky;
+  right: 0;
+  margin-left: auto;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--color-tab-active-bg);
+  color: var(--color-accent);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab-panel-open:hover:not(:disabled) {
+  background: var(--color-hover-overlay);
+}
+
+.tab-panel-open:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ドラッグ中の見た目。演出値の根拠は specs/006-group-navigation/research.md の R-004 */
+.group-row.shifting {
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.group-row.settling {
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.group-row.dragging {
+  position: relative;
+  z-index: 2;
+  border-radius: var(--radius-control);
+  border-bottom-color: transparent;
+  box-shadow: var(--elevation-2);
+  cursor: grabbing;
+}
+
+.group-row.dragging .group-row-handle {
+  color: var(--color-accent);
+}
+
+/* 絞り込み中は並び替えができないため掴み手を隠す */
+.group-panel-list.filtering .group-row {
+  cursor: pointer;
+}
+
+.group-panel-list.filtering .group-row-handle {
+  visibility: hidden;
+}
+
+/* 行の操作（三点リーダー・名称変更/削除・インライン入力）。
+   いずれも .group-row の高さを変えないこと（dragReorder が行高一定を前提にする）。 */
+.group-row-menu-button {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: 1;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.group-row-menu-button:hover {
+  background: var(--color-hover-overlay);
+}
+
+.group-row-actions {
+  flex: none;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.group-row-actions button {
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-oneline);
+  letter-spacing: var(--letter-spacing-std);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.group-row-actions button.danger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.group-row-editing {
+  cursor: default;
+}
+
+.group-row-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-control);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-dense);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.group-row-counter {
+  flex: none;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
 }
