@@ -165,6 +165,17 @@ function createItemCard(item, maskEnabled) {
     li.appendChild(checkbox);
   }
 
+  // 並び替えの起点。カード本体を押す操作はコピーに割り当てられているため、
+  // ドラッグはこの掴み手からのみ開始する（誤って並び替わるのを防ぐ）。
+  // ポインタによる並び替えが有効なときだけ描画する。
+  if (!searchTerm && !selectionMode) {
+    const handle = document.createElement("span");
+    handle.className = "item-card-handle";
+    handle.textContent = "⠿";
+    handle.setAttribute("aria-hidden", "true");
+    li.appendChild(handle);
+  }
+
   const main = document.createElement("div");
   main.className = "item-card-main";
 
@@ -613,6 +624,9 @@ attachDragReorder(listEl, {
   // 項目一覧は #item-list 自身ではなくドキュメントがスクロールする。
   scrollContainer: document.scrollingElement,
   ignoreSelector: ".copy-button, .kebab-button, .item-menu, .item-checkbox",
+  // ドラッグは掴み手からのみ開始する。カード本体を押した操作はコピーに使う。
+  // グループの縦リストには渡さない（行を押す操作は切替で、誤操作の代償が小さい）。
+  handleSelector: ".item-card-handle",
   canDrag: () => !searchTerm && !selectionMode,
   onActivate: async (row) => {
     // 選択モード中はコピーを行わない（spec 005）。

@@ -11,7 +11,7 @@
 - グループの作成・名称編集・削除（全グループパネル内で完結。グループを削除すると所属する項目も削除される）
 - グループのドラッグ&ドロップによる並び替え（未分類も対象。並び順がタブ順と起動時に開くタブになる）
 - 項目名での検索絞り込み
-- 項目のドラッグ&ドロップ・キーボード（カードにフォーカスして `Alt` + `↑` / `↓`）による並び替え（グループ内、検索中と選択モード中は無効）
+- 項目の並び替え：カード左端の掴み手（`⠿`）からのドラッグ、またはカードにフォーカスして `Alt` + `↑` / `↓`（グループ内、検索中と選択モード中は無効）
 - テーマの自動追従（OS設定）に加え、ライト/ダークの手動固定
 - 選択モードによる複数項目の一括削除・グループ一括変更（選択中は各カードのコピー・個別メニュー操作を無効化）
 
@@ -25,13 +25,18 @@
 並び替えの操作は項目カードとグループの縦リストで統一されている。どちらもドラッグと
 `Alt` + `↑` / `↓` の2手段で、カードは `Enter` / `Space` でコピー、グループの行は同じキーで切替。
 
+ドラッグの起点だけは異なる。項目カードは**左端の掴み手からのみ**ドラッグを開始する（カード本体を
+押す操作はコピーに割り当てられているため、誤って並び替わるのを防ぐ）。グループの縦リストは
+行のどこからでもドラッグできる（行を押す操作は切替で、誤操作の代償が小さい）。
+
 詳細な仕様は [specs/001-quick-copy-items/spec.md](specs/001-quick-copy-items/spec.md)（登録・一覧・マスク・グループの各機能要件）、
 [specs/002-side-panel-ui/spec.md](specs/002-side-panel-ui/spec.md)（サイドパネルUI刷新）、
 [specs/003-sidepanel-list-enhancements/spec.md](specs/003-sidepanel-list-enhancements/spec.md)（並び替え・テーマ手動切替・一括削除）、
 [specs/005-bulk-group-change/spec.md](specs/005-bulk-group-change/spec.md)（選択項目グループ一括変更・選択モード中の個別操作制限）、
 [specs/006-group-navigation/spec.md](specs/006-group-navigation/spec.md)（全グループパネル・グループ並び替え・グループ名の長さ制御）、
 [specs/007-sidepanel-keyboard/spec.md](specs/007-sidepanel-keyboard/spec.md)（キーボード操作・フォーカス管理）、
-[specs/008-item-reorder-unification/spec.md](specs/008-item-reorder-unification/spec.md)（項目並び替え操作の統一）を参照。
+[specs/008-item-reorder-unification/spec.md](specs/008-item-reorder-unification/spec.md)（項目並び替え操作の統一）、
+[specs/009-item-reorder-handle/spec.md](specs/009-item-reorder-handle/spec.md)（項目カードの並び替えハンドル）を参照。
 
 ## 開発
 
@@ -55,4 +60,5 @@ npm test
 [specs/005-bulk-group-change/quickstart.md](specs/005-bulk-group-change/quickstart.md)、
 [specs/006-group-navigation/quickstart.md](specs/006-group-navigation/quickstart.md)、
 [specs/007-sidepanel-keyboard/quickstart.md](specs/007-sidepanel-keyboard/quickstart.md)、
-[specs/008-item-reorder-unification/quickstart.md](specs/008-item-reorder-unification/quickstart.md) を参照。
+[specs/008-item-reorder-unification/quickstart.md](specs/008-item-reorder-unification/quickstart.md)、
+[specs/009-item-reorder-handle/quickstart.md](specs/009-item-reorder-handle/quickstart.md) を参照。
