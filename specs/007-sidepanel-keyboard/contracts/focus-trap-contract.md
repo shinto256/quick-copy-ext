@@ -103,7 +103,7 @@ textarea:not([disabled]), [tabindex]:not([tabindex="-1"])
 
 | 箇所 | 内容 |
 |------|------|
-| 全グループパネル（`groupPanel.js`） | `open()` で `activate(document.activeElement)`、`close()` で `deactivate()`。`fallbackFocus` はタブバー末尾のパネルを開くボタンを返す関数 |
+| 全グループパネル（`groupPanel.js`） | `open()` で `activate(document.activeElement)`、`close()` で `deactivate()`。`fallbackFocus` は `document.querySelector(".tab-panel-open")` を返す関数（このボタンに `id` はない） |
 | 項目登録フォーム（`sidepanel.js`） | `openItemForm()` で `activate(document.activeElement)`、`closeItemForm()` で `deactivate()`。`fallbackFocus` は項目追加ボタンを返す関数 |
 
 `fallbackFocus` を関数で受け取るのは、タブバー末尾のボタンが `renderTabs()` のたびに作り直されるため。
