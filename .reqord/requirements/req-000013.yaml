@@ -1,0 +1,31 @@
+id: req-000013
+version: '1.0'
+title: 項目カードの並び替えハンドル
+status: approved
+priority: medium
+createdAt: 2026-09-04T10:13:09.404Z
+updatedAt: 2026-09-04T10:15:25.255Z
+versionHistory: []
+files:
+  description: requirements/req-000013/description.md
+  supplementary: []
+successCriteria:
+  - 項目一覧の100%のカードに掴み手のアイコンが表示される（検索絞り込み中と選択モード中を除く）。
+  - カード本体を押してポインタを動かした場合、並び替えが開始される割合が0%である。
+  - 掴み手を押してドラッグした場合、並び替えが開始される割合が100%である。
+  - カード本体を押して動かさずに離した場合、従来どおり値がコピーされる。
+  - 掴み手の当たり判定がアイコンの字形より広い範囲である。
+  - 掴み手の追加によってカードの高さが変わらず、ドラッグ中の挿入位置の提示に狂いが0件である。
+  - キーボードによる並び替えとフォーカス移動に回帰が0件である。
+format:
+  type: ears
+  ears:
+    type: event-driven
+    action: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo:
+    - req-000002
+    - req-000010
+    - req-000012
