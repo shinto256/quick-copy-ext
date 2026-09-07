@@ -1,10 +1,10 @@
 id: req-000009
 version: '1.0'
 title: 選択項目グループ一括変更機能
-status: approved
+status: implemented
 priority: medium
 createdAt: 2026-09-02T09:28:38.540Z
-updatedAt: 2026-09-02T09:31:45.319Z
+updatedAt: 2026-09-07T02:42:49.407Z
 versionHistory: []
 files:
   description: requirements/req-000009/description.md

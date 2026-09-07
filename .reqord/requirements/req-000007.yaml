@@ -1,10 +1,10 @@
 id: req-000007
 version: '1.0'
 title: 項目一括削除機能
-status: approved
+status: implemented
 priority: medium
 createdAt: 2026-08-28T07:14:17.500Z
-updatedAt: 2026-08-28T07:18:42.055Z
+updatedAt: 2026-09-07T02:42:44.877Z
 versionHistory: []
 files:
   description: requirements/req-000007/description.md

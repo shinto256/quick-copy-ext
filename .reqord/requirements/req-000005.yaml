@@ -1,10 +1,10 @@
 id: req-000005
 version: '1.0'
 title: 項目並び替え機能
-status: approved
+status: implemented
 priority: medium
 createdAt: 2026-08-28T07:14:15.915Z
-updatedAt: 2026-08-28T07:18:25.474Z
+updatedAt: 2026-09-07T02:42:40.415Z
 versionHistory: []
 files:
   description: requirements/req-000005/description.md
