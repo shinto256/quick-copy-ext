@@ -3,8 +3,8 @@ import { ValidationError, NotFoundError } from "./errors.js";
 
 const KEY = "items";
 const MAX_ITEMS = 500;
-const NAME_MAX_LENGTH = 50;
-const VALUE_MAX_LENGTH = 2000;
+export const NAME_MAX_LENGTH = 50;
+export const VALUE_MAX_LENGTH = 2000;
 
 function validate(name, value) {
   if (!name || name.length < 1 || name.length > NAME_MAX_LENGTH) {

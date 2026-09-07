@@ -38,7 +38,7 @@ DOM操作が中心のため、既存specと同方針でユニットテスト対�
 
 ## Phase 1: Setup
 
-- [ ] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下9ファイル・183テスト）
+- [X] T001 `npm test` を実行し、変更前の全テストがパスすることを確認する（ベースライン記録。`tests/unit/` 配下9ファイル・183テスト）
 
 ---
 
@@ -48,13 +48,13 @@ DOM操作が中心のため、既存specと同方針でユニットテスト対�
 
 **⚠️ CRITICAL**: このフェーズが完了するまで、いずれのユーザーストーリーも着手できない
 
-- [ ] T002 [P] `tests/unit/i18n.test.js` を新規作成し、`t()` の展開・辞書のキー網羅性・単数複数分岐のテスト観点（[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「テスト観点」の全項目）を書く。実装前なので失敗することを確認する
-- [ ] T003 [P] `src/i18n/ja.js` を新規作成し、[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「翻訳キー一覧」表に定義された全58キーの日本語辞書をデフォルトエクスポートする。件数を含むキー（`tabs.openPanelAria` / `selection.count` / `selection.confirmDelete` / `groupPanel.itemCountAria` / `groupPanel.confirmDelete`）は関数として定義する
-- [ ] T004 [P] `src/i18n/en.js` を新規作成し、同じ58キーの英語辞書をデフォルトエクスポートする。件数を含むキーは `count === 1` で単数形・それ以外で複数形を返す関数にする（[research.md](./research.md) R-003）。`moreMenu.languageJa` / `moreMenu.languageEn` の値は `ja.js` と同一にする（「日本語」「English」。spec FR-002a）
-- [ ] T005 `src/i18n/index.js` を新規作成し、`setLanguage(lang)` / `getLanguage()` / `t(key, params)` / `applyStaticTranslations(root)` を実装して T002 をパスさせる。`t()` はキー欠落時に例外を投げずキー文字列を返す。`setLanguage` は無効な値を `"ja"` として扱う（[contracts/i18n-contract.md](./contracts/i18n-contract.md)）
-- [ ] T006 [P] `tests/unit/settingsRepository.test.js` に `setLanguage` / `get` の異常値丸めのテスト観点（[contracts/settings-language-contract.md](./contracts/settings-language-contract.md)）を追加する。実装前なので失敗することを確認する
-- [ ] T007 `src/storage/settingsRepository.js` に `VALID_LANGUAGES = ["ja", "en"]`、`DEFAULT_SETTINGS` への `language: "ja"` 追加、`setLanguage(language)` を実装して T006 をパスさせる。`get()` に、保存値が `VALID_LANGUAGES` に含まれない場合 `"ja"` に丸める処理を追加する
-- [ ] T008 `npm test` を実行し、T002〜T007 の追加分と既存テストがすべてパスすることを確認する
+- [X] T002 [P] `tests/unit/i18n.test.js` を新規作成し、`t()` の展開・辞書のキー網羅性・単数複数分岐のテスト観点（[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「テスト観点」の全項目）を書く。実装前なので失敗することを確認する
+- [X] T003 [P] `src/i18n/ja.js` を新規作成し、[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「翻訳キー一覧」表に定義された全58キーの日本語辞書をデフォルトエクスポートする。件数を含むキー（`tabs.openPanelAria` / `selection.count` / `selection.confirmDelete` / `groupPanel.itemCountAria` / `groupPanel.confirmDelete`）は関数として定義する
+- [X] T004 [P] `src/i18n/en.js` を新規作成し、同じ58キーの英語辞書をデフォルトエクスポートする。件数を含むキーは `count === 1` で単数形・それ以外で複数形を返す関数にする（[research.md](./research.md) R-003）。`moreMenu.languageJa` / `moreMenu.languageEn` の値は `ja.js` と同一にする（「日本語」「English」。spec FR-002a）
+- [X] T005 `src/i18n/index.js` を新規作成し、`setLanguage(lang)` / `getLanguage()` / `t(key, params)` / `applyStaticTranslations(root)` を実装して T002 をパスさせる。`t()` はキー欠落時に例外を投げずキー文字列を返す。`setLanguage` は無効な値を `"ja"` として扱う（[contracts/i18n-contract.md](./contracts/i18n-contract.md)）
+- [X] T006 [P] `tests/unit/settingsRepository.test.js` に `setLanguage` / `get` の異常値丸めのテスト観点（[contracts/settings-language-contract.md](./contracts/settings-language-contract.md)）を追加する。実装前なので失敗することを確認する
+- [X] T007 `src/storage/settingsRepository.js` に `VALID_LANGUAGES = ["ja", "en"]`、`DEFAULT_SETTINGS` への `language: "ja"` 追加、`setLanguage(language)` を実装して T006 をパスさせる。`get()` に、保存値が `VALID_LANGUAGES` に含まれない場合 `"ja"` に丸める処理を追加する
+- [X] T008 `npm test` を実行し、T002〜T007 の追加分と既存テストがすべてパスすることを確認する
 
 **Checkpoint**: 翻訳基盤（辞書・`t()`・言語設定の保存）が揃った。ユーザーストーリーの実装に着手できる
 
@@ -68,17 +68,17 @@ DOM操作が中心のため、既存specと同方針でユニットテスト対�
 
 ### Implementation
 
-- [ ] T009 [US1] `src/sidepanel/sidepanel.html` の静的なラベル・プレースホルダー・`aria-label`・`title`に `data-i18n-text` / `data-i18n-placeholder` / `data-i18n-aria-label` / `data-i18n-title` 属性を付与する（検索欄、マスク切替、項目追加ボタン、その他のメニューを開くボタン、タブの`aria-label`、選択ツールバーの静的ボタン群（グループ変更・削除・キャンセル・変更先グループラベル・適用・キャンセル）、全グループパネルの絞り込み・閉じるボタン・空状態・グループを追加ボタン、項目登録フォームの各ラベル・未分類の選択肢・保存/キャンセル）。[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「翻訳キー一覧」表のキーをそのまま使う
-- [ ] T010 [US1] `src/sidepanel/sidepanel.js` の `init()` を変更し、`SettingsRepository.get()` から `currentLanguage` を復元して `i18n.setLanguage(currentLanguage)` を呼び、続けて `applyStaticTranslations(document)` を呼んでから既存の `renderTabs()` / `renderList()` を実行する（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「5. 初期化」）
-- [ ] T011 [US1] `src/sidepanel/sidepanel.js` の `renderMoreMenu()` に、既存の「テーマ」セクションと同じ構造で `LANGUAGE_OPTIONS`（`ja` / `en`、ラベルは `moreMenu.languageJa` / `moreMenu.languageEn`）による「言語」セクションを追加する。見出しは `t("moreMenu.language")`、現在の `currentLanguage` と一致する選択肢に `.active` を付ける（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「1. 「言語」セクション」）
-- [ ] T012 [US1] `src/sidepanel/sidepanel.js` に `selectLanguage(lang)` を追加する。`currentLanguage` の更新 → `SettingsRepository.setLanguage(lang)` → `i18n.setLanguage(lang)` → `applyStaticTranslations(document)` → `renderTabs()` → `renderList()` → `groupPanel.refresh()` → `renderMoreMenu()` の順で呼ぶ。`moreMenuOpen` は変更しない（その他メニューは開いたまま新しい言語で再表示される。spec US1 シナリオ7）。「言語」セクションの各選択肢のクリックハンドラから呼ぶ（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「2. `selectLanguage(lang)`」）
-- [ ] T013 [US2] `src/sidepanel/sidepanel.js` の `createItemCard` 内の文字列を `t()` に置き換える: `checkbox` の `aria-label`（`itemCard.selectAria`）、`copyButton` の `aria-label`（`itemCard.copyAria`）・`title`（`itemCard.copyTitle`）、`kebabButton` の `aria-label`（`itemCard.kebabAria`）、編集ボタン（`itemCard.edit`）、削除ボタン（`itemCard.delete`）、削除確認ダイアログ（`itemCard.confirmDelete`）
-- [ ] T014 [US2] `src/sidepanel/sidepanel.js` の `copyValue` 呼び出し元のコピー成功・失敗表示（`copyStatus.success` / `copyStatus.failure`）、`renderList()` 内の空状態文言（`itemList.empty` / `itemList.emptyFiltered`）を `t()` に置き換える
-- [ ] T015 [US2] `src/sidepanel/sidepanel.js` の `createTabElement` の「未分類」ラベルを `t("common.unassigned")` に、`createPanelOpenButton` のボタン文言（`tabs.openPanelButton`）・`aria-label`（`tabs.openPanelAria`）・`title`（`tabs.openPanelTitle`）を `t()` に置き換える
-- [ ] T016 [US2] `src/sidepanel/sidepanel.js` の `updateSelectionToolbar` の選択件数表示（`selection.count`）、一括削除の確認ダイアログ（`selection.confirmDelete`）を `t()` に置き換える
-- [ ] T017 [US2] `src/sidepanel/groupPanel.js` に `import { t } from "../i18n/index.js";` を追加し、`tabLabel(tabId)` の未分類ラベルを `t("common.unassigned")` に置き換える。`createRow` 内の三点リーダーの `aria-label`（`groupPanel.rowMenuAria`、`tabLabel(tabId)` の結果を `label` パラメータとして渡す）・件数の `aria-label`（`groupPanel.itemCountAria`）・「名称変更」（`groupPanel.rename`）・「削除」（`groupPanel.delete`）・インライン入力の `aria-label`（`groupPanel.nameAria`）を `t()` に置き換える
-- [ ] T018 [US2] `src/sidepanel/groupPanel.js` の `validationMessage`（`errorNameLength` / `errorLimit`）、削除確認ダイアログ（`groupPanel.confirmDelete`）、汎用エラー文言（`errorRenameGeneric` / `errorCreateGeneric` / `errorDeleteGeneric` / `errorReorderGeneric`）を `t()` に置き換える。あわせて `initGroupPanel` の戻り値に `refresh()` を追加する（`panelOpen` のときだけ `renderList()` を呼ぶ。開閉状態は変えない。[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「3. `groupPanel.refresh()`」）
-- [ ] T019 [US1] `npm test` を実行し、`tests/unit/` の全テストがパスすることを確認する（回帰なし。本フェーズはDOM中心の変更のため新規テストの追加はない）
+- [X] T009 [US1] `src/sidepanel/sidepanel.html` の静的なラベル・プレースホルダー・`aria-label`・`title`に `data-i18n-text` / `data-i18n-placeholder` / `data-i18n-aria-label` / `data-i18n-title` 属性を付与する（検索欄、マスク切替、項目追加ボタン、その他のメニューを開くボタン、タブの`aria-label`、選択ツールバーの静的ボタン群（グループ変更・削除・キャンセル・変更先グループラベル・適用・キャンセル）、全グループパネルの絞り込み・閉じるボタン・空状態・グループを追加ボタン、項目登録フォームの各ラベル・未分類の選択肢・保存/キャンセル）。[contracts/i18n-contract.md](./contracts/i18n-contract.md) の「翻訳キー一覧」表のキーをそのまま使う
+- [X] T010 [US1] `src/sidepanel/sidepanel.js` の `init()` を変更し、`SettingsRepository.get()` から `currentLanguage` を復元して `i18n.setLanguage(currentLanguage)` を呼び、続けて `applyStaticTranslations(document)` を呼んでから既存の `renderTabs()` / `renderList()` を実行する（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「5. 初期化」）
+- [X] T011 [US1] `src/sidepanel/sidepanel.js` の `renderMoreMenu()` に、既存の「テーマ」セクションと同じ構造で `LANGUAGE_OPTIONS`（`ja` / `en`、ラベルは `moreMenu.languageJa` / `moreMenu.languageEn`）による「言語」セクションを追加する。見出しは `t("moreMenu.language")`、現在の `currentLanguage` と一致する選択肢に `.active` を付ける（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「1. 「言語」セクション」）
+- [X] T012 [US1] `src/sidepanel/sidepanel.js` に `selectLanguage(lang)` を追加する。`currentLanguage` の更新 → `SettingsRepository.setLanguage(lang)` → `i18n.setLanguage(lang)` → `applyStaticTranslations(document)` → `renderTabs()` → `renderList()` → `groupPanel.refresh()` → `renderMoreMenu()` の順で呼ぶ。`moreMenuOpen` は変更しない（その他メニューは開いたまま新しい言語で再表示される。spec US1 シナリオ7）。「言語」セクションの各選択肢のクリックハンドラから呼ぶ（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「2. `selectLanguage(lang)`」）
+- [X] T013 [US2] `src/sidepanel/sidepanel.js` の `createItemCard` 内の文字列を `t()` に置き換える: `checkbox` の `aria-label`（`itemCard.selectAria`）、`copyButton` の `aria-label`（`itemCard.copyAria`）・`title`（`itemCard.copyTitle`）、`kebabButton` の `aria-label`（`itemCard.kebabAria`）、編集ボタン（`itemCard.edit`）、削除ボタン（`itemCard.delete`）、削除確認ダイアログ（`itemCard.confirmDelete`）
+- [X] T014 [US2] `src/sidepanel/sidepanel.js` の `copyValue` 呼び出し元のコピー成功・失敗表示（`copyStatus.success` / `copyStatus.failure`）、`renderList()` 内の空状態文言（`itemList.empty` / `itemList.emptyFiltered`）を `t()` に置き換える
+- [X] T015 [US2] `src/sidepanel/sidepanel.js` の `createTabElement` の「未分類」ラベルを `t("common.unassigned")` に、`createPanelOpenButton` のボタン文言（`tabs.openPanelButton`）・`aria-label`（`tabs.openPanelAria`）・`title`（`tabs.openPanelTitle`）を `t()` に置き換える
+- [X] T016 [US2] `src/sidepanel/sidepanel.js` の `updateSelectionToolbar` の選択件数表示（`selection.count`）、一括削除の確認ダイアログ（`selection.confirmDelete`）を `t()` に置き換える
+- [X] T017 [US2] `src/sidepanel/groupPanel.js` に `import { t } from "../i18n/index.js";` を追加し、`tabLabel(tabId)` の未分類ラベルを `t("common.unassigned")` に置き換える。`createRow` 内の三点リーダーの `aria-label`（`groupPanel.rowMenuAria`、`tabLabel(tabId)` の結果を `label` パラメータとして渡す）・件数の `aria-label`（`groupPanel.itemCountAria`）・「名称変更」（`groupPanel.rename`）・「削除」（`groupPanel.delete`）・インライン入力の `aria-label`（`groupPanel.nameAria`）を `t()` に置き換える
+- [X] T018 [US2] `src/sidepanel/groupPanel.js` の `validationMessage`（`errorNameLength` / `errorLimit`）、削除確認ダイアログ（`groupPanel.confirmDelete`）、汎用エラー文言（`errorRenameGeneric` / `errorCreateGeneric` / `errorDeleteGeneric` / `errorReorderGeneric`）を `t()` に置き換える。あわせて `initGroupPanel` の戻り値に `refresh()` を追加する（`panelOpen` のときだけ `renderList()` を呼ぶ。開閉状態は変えない。[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「3. `groupPanel.refresh()`」）
+- [X] T019 [US1] `npm test` を実行し、`tests/unit/` の全テストがパスすることを確認する（回帰なし。本フェーズはDOM中心の変更のため新規テストの追加はない）
 - [ ] T020 [US1] [quickstart.md](./quickstart.md) セクション1「その他メニューから言語を切り替える」の手順1〜7を実行し、FR-001〜FR-007 と SC-001 / SC-003 / SC-004 を確認する
 - [ ] T021 [US2] [quickstart.md](./quickstart.md) セクション2「サイドパネル全体が選んだ言語で表示される」の手順1〜7を実行し、FR-008〜FR-013 と SC-002 を確認する
 - [ ] T022 [US2] [quickstart.md](./quickstart.md) セクション3「状態が失われない」の手順1〜4を実行し、FR-014〜FR-016 と SC-006 を確認する
@@ -95,9 +95,9 @@ DOM操作が中心のため、既存specと同方針でユニットテスト対�
 
 ### Implementation
 
-- [ ] T023 [US3] `src/storage/itemRepository.js` の `NAME_MAX_LENGTH` / `VALUE_MAX_LENGTH` を内部 `const` から `export const` に変更する（`groupRepository.NAME_MAX_LENGTH` と同じ形。[research.md](./research.md) R-007）
-- [ ] T024 [US3] `src/sidepanel/sidepanel.js` に `itemValidationMessage(error, fallbackKey)` を追加する。`error.field` が `"name"` なら `t("itemForm.errorNameLength", { max: NAME_MAX_LENGTH })`、`"value"` なら `t("itemForm.errorValueLength", { max: VALUE_MAX_LENGTH })`、`"limit"` なら `t("itemForm.errorLimit")`、それ以外・`ValidationError` でない場合は `t(fallbackKey)` を返す（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「4. 項目登録フォームの検証エラー」）
-- [ ] T025 [US3] `src/sidepanel/sidepanel.js` の項目登録フォーム送信ハンドラの `catch` を、`showItemError(error.message)` / `showItemError("保存に失敗しました。もう一度お試しください。")` から `showItemError(itemValidationMessage(error, "itemForm.errorGeneric"))` に置き換える
+- [X] T023 [US3] `src/storage/itemRepository.js` の `NAME_MAX_LENGTH` / `VALUE_MAX_LENGTH` を内部 `const` から `export const` に変更する（`groupRepository.NAME_MAX_LENGTH` と同じ形。[research.md](./research.md) R-007）
+- [X] T024 [US3] `src/sidepanel/sidepanel.js` に `itemValidationMessage(error, fallbackKey)` を追加する。`error.field` が `"name"` なら `t("itemForm.errorNameLength", { max: NAME_MAX_LENGTH })`、`"value"` なら `t("itemForm.errorValueLength", { max: VALUE_MAX_LENGTH })`、`"limit"` なら `t("itemForm.errorLimit")`、それ以外・`ValidationError` でない場合は `t(fallbackKey)` を返す（[contracts/language-switch-ui-contract.md](./contracts/language-switch-ui-contract.md) の「4. 項目登録フォームの検証エラー」）
+- [X] T025 [US3] `src/sidepanel/sidepanel.js` の項目登録フォーム送信ハンドラの `catch` を、`showItemError(error.message)` / `showItemError("保存に失敗しました。もう一度お試しください。")` から `showItemError(itemValidationMessage(error, "itemForm.errorGeneric"))` に置き換える
 - [ ] T026 [US3] [quickstart.md](./quickstart.md) セクション4「項目登録フォームの検証エラー」の手順1〜4を実行し、FR-017 / FR-018 と SC-005 を確認する
 
 **Checkpoint**: 項目登録フォームの検証エラーが常に選択中の言語で意味の通る文言になる
@@ -106,10 +106,10 @@ DOM操作が中心のため、既存specと同方針でユニットテスト対�
 
 ## Phase 5: Polish & Cross-Cutting Concerns
 
-- [ ] T027 [P] `README.md` に多言語対応（その他メニューの「言語」セクション、対応言語、既定値）を追記する。あわせて `specs/011-sidepanel-i18n/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
+- [X] T027 [P] `README.md` に多言語対応（その他メニューの「言語」セクション、対応言語、既定値）を追記する。あわせて `specs/011-sidepanel-i18n/spec.md` と `quickstart.md` への参照を「詳細な仕様」「動作確認の手順」の各リストに追加する
 - [ ] T028 [quickstart.md](./quickstart.md) セクション5「既存機能の回帰確認」の手順1〜7を実行し、テーマ切替・マスク表示・項目とグループの並び替え（ドラッグ・キーボード）・グループの管理操作・タブバーの幅追従表示（英語での文言の長さがタブ幅計算に影響していないか）・フォーカストラップ・選択モードの一括操作に回帰がないことを確認する
-- [ ] T029 [quickstart.md](./quickstart.md) セクション6に従い `npm test` を実行し、`tests/unit/` の全テスト（新規 `i18n.test.js` を含む）がパスすることを確認する
-- [ ] T030 `npx reqord impact analyze req-000015` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
+- [X] T029 [quickstart.md](./quickstart.md) セクション6に従い `npm test` を実行し、`tests/unit/` の全テスト（新規 `i18n.test.js` を含む）がパスすることを確認する
+- [X] T030 `npx reqord impact analyze req-000015` を実行し、影響範囲があれば Reqord の該当要件・仕様の更新PRを提案する（`CLAUDE.md` の開発フロー4）
 
 ---
 

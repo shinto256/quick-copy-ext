@@ -12,18 +12,36 @@
           type="search"
           id="search-input"
           class="search-input"
+          data-i18n-placeholder="header.searchPlaceholder"
+          data-i18n-aria-label="header.searchPlaceholder"
           placeholder="項目名で検索"
           aria-label="項目名で検索"
         />
         <label class="mask-toggle">
           <input type="checkbox" id="mask-toggle" />
-          <span>マスク解除</span>
+          <span data-i18n-text="header.maskToggle">マスク解除</span>
         </label>
-        <button type="button" id="add-item-button" class="icon-button" aria-label="項目を追加" title="項目を追加">
+        <button
+          type="button"
+          id="add-item-button"
+          class="icon-button"
+          data-i18n-aria-label="header.addItem"
+          data-i18n-title="header.addItem"
+          aria-label="項目を追加"
+          title="項目を追加"
+        >
           ＋
         </button>
         <div class="more-menu-wrapper">
-          <button type="button" id="more-menu-button" class="icon-button" aria-label="その他のメニュー" title="その他のメニュー">
+          <button
+            type="button"
+            id="more-menu-button"
+            class="icon-button"
+            data-i18n-aria-label="header.moreMenu"
+            data-i18n-title="header.moreMenu"
+            aria-label="その他のメニュー"
+            title="その他のメニュー"
+          >
             ⋮
           </button>
           <div id="more-menu" class="more-menu" hidden></div>
@@ -31,7 +49,7 @@
       </div>
     </header>
 
-    <nav class="tabs" id="tabs" aria-label="グループタブ"></nav>
+    <nav class="tabs" id="tabs" data-i18n-aria-label="tabs.ariaLabel" aria-label="グループタブ"></nav>
 
     <div id="selection-toolbar" class="selection-toolbar" hidden>
       <span id="selection-count">0件選択中</span>
@@ -40,23 +58,41 @@
           type="button"
           id="selection-group-change-button"
           class="selection-group-change-button"
+          data-i18n-text="selection.groupChange"
           disabled
         >
           グループ変更
         </button>
-        <button type="button" id="selection-delete-button" class="selection-delete-button" disabled>
+        <button
+          type="button"
+          id="selection-delete-button"
+          class="selection-delete-button"
+          data-i18n-text="selection.delete"
+          disabled
+        >
           削除
         </button>
-        <button type="button" id="selection-cancel-button" class="selection-cancel-button">
+        <button
+          type="button"
+          id="selection-cancel-button"
+          class="selection-cancel-button"
+          data-i18n-text="selection.cancel"
+        >
           キャンセル
         </button>
       </div>
       <div id="selection-group-change-popover" class="selection-group-change-popover" hidden>
-        <label for="selection-group-select">変更先グループ</label>
+        <label for="selection-group-select" data-i18n-text="selection.changeGroupLabel">変更先グループ</label>
         <select id="selection-group-select"></select>
         <div class="actions">
-          <button type="button" id="selection-group-change-apply-button">適用</button>
-          <button type="button" id="selection-group-change-cancel-button">キャンセル</button>
+          <button type="button" id="selection-group-change-apply-button" data-i18n-text="selection.apply">適用</button>
+          <button
+            type="button"
+            id="selection-group-change-cancel-button"
+            data-i18n-text="selection.cancel"
+          >
+            キャンセル
+          </button>
         </div>
       </div>
     </div>
@@ -69,12 +105,21 @@
     <p id="copy-status" class="copy-status" role="status"></p>
 
     <div id="group-panel-overlay" class="form-overlay group-panel-overlay" hidden>
-      <div id="group-panel" class="group-panel" role="dialog" aria-modal="true" aria-label="グループ一覧">
+      <div
+        id="group-panel"
+        class="group-panel"
+        role="dialog"
+        aria-modal="true"
+        data-i18n-aria-label="tabs.openPanelTitle"
+        aria-label="グループ一覧"
+      >
         <div class="group-panel-header">
           <input
             type="search"
             id="group-panel-filter"
             class="group-panel-filter"
+            data-i18n-placeholder="groupPanel.filterPlaceholder"
+            data-i18n-aria-label="groupPanel.filterPlaceholder"
             placeholder="グループ名で絞り込み"
             aria-label="グループ名で絞り込み"
           />
@@ -82,6 +127,8 @@
             type="button"
             id="group-panel-close"
             class="icon-button"
+            data-i18n-aria-label="groupPanel.closeAria"
+            data-i18n-title="groupPanel.closeAria"
             aria-label="グループ一覧を閉じる"
             title="グループ一覧を閉じる"
           >
@@ -89,8 +136,8 @@
           </button>
         </div>
         <ul id="group-panel-list" class="group-panel-list"></ul>
-        <p id="group-panel-empty" class="empty-state" hidden>該当するグループはありません。</p>
-        <button type="button" id="group-panel-add" class="group-panel-add" hidden>
+        <p id="group-panel-empty" class="empty-state" data-i18n-text="groupPanel.empty" hidden>該当するグループはありません。</p>
+        <button type="button" id="group-panel-add" class="group-panel-add" data-i18n-text="groupPanel.addButtonLabel" hidden>
           ＋ グループを追加
         </button>
         <p id="group-panel-error" class="error" role="alert" hidden></p>
@@ -101,22 +148,22 @@
       <form id="item-form" class="item-form">
         <input type="hidden" id="item-id" value="" />
         <div class="field">
-          <label for="item-name">名前（1〜50文字）</label>
+          <label for="item-name" id="item-name-label">名前（1〜50文字）</label>
           <input type="text" id="item-name" maxlength="50" required />
         </div>
         <div class="field">
-          <label for="item-value">値（1〜2000文字、複数行可）</label>
+          <label for="item-value" id="item-value-label">値（1〜2000文字、複数行可）</label>
           <textarea id="item-value" maxlength="2000" rows="5" required></textarea>
         </div>
         <div class="field">
-          <label for="item-group">グループ</label>
+          <label for="item-group" data-i18n-text="itemForm.groupLabel">グループ</label>
           <select id="item-group">
-            <option value="">未分類</option>
+            <option value="" data-i18n-text="common.unassigned">未分類</option>
           </select>
         </div>
         <div class="actions">
-          <button type="submit" id="item-save">保存</button>
-          <button type="button" id="item-cancel">キャンセル</button>
+          <button type="submit" id="item-save" data-i18n-text="itemForm.save">保存</button>
+          <button type="button" id="item-cancel" data-i18n-text="itemForm.cancel">キャンセル</button>
         </div>
         <p id="item-error" class="error" role="alert" hidden></p>
       </form>
