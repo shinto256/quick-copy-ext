@@ -9,6 +9,7 @@ import { ValidationError } from "../storage/errors.js";
 import { attachDragReorder } from "./dragReorder.js";
 import { isActivationKey, moveInList, reorderOffsetFromKey } from "./listReorder.js";
 import { createFocusTrap } from "./focusTrap.js";
+import { t } from "../i18n/index.js";
 
 const overlayEl = document.getElementById("group-panel-overlay");
 const filterEl = document.getElementById("group-panel-filter");
@@ -51,17 +52,17 @@ function validationMessage(error, fallback) {
     return fallback;
   }
   if (error.field === "name") {
-    return `グループ名は1〜${GroupRepository.NAME_MAX_LENGTH}文字で入力してください。`;
+    return t("groupPanel.errorNameLength", { max: GroupRepository.NAME_MAX_LENGTH });
   }
   if (error.field === "limit") {
-    return "グループはこれ以上作成できません。";
+    return t("groupPanel.errorLimit");
   }
   return fallback;
 }
 
 function tabLabel(tabId) {
   if (tabId === UNASSIGNED_TAB_ID) {
-    return "未分類";
+    return t("common.unassigned");
   }
   return groupsById.get(tabId)?.name ?? "";
 }
@@ -128,7 +129,7 @@ function createRow(tabId) {
     const count = document.createElement("span");
     count.className = "group-row-count";
     count.textContent = String(itemCount(tabId));
-    count.setAttribute("aria-label", `${itemCount(tabId)}件`);
+    count.setAttribute("aria-label", t("groupPanel.itemCountAria", { count: itemCount(tabId) }));
     row.appendChild(count);
   }
 
@@ -148,7 +149,7 @@ function appendRowActions(row, tabId) {
 
     const renameButton = document.createElement("button");
     renameButton.type = "button";
-    renameButton.textContent = "名称変更";
+    renameButton.textContent = t("groupPanel.rename");
     renameButton.addEventListener("click", () => {
       clearError();
       openMenuTabId = null;
@@ -160,7 +161,7 @@ function appendRowActions(row, tabId) {
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "danger";
-    deleteButton.textContent = "削除";
+    deleteButton.textContent = t("groupPanel.delete");
     deleteButton.addEventListener("click", () => deleteGroup(tabId));
     actions.appendChild(deleteButton);
 
@@ -172,7 +173,7 @@ function appendRowActions(row, tabId) {
   kebab.type = "button";
   kebab.className = "group-row-menu-button";
   kebab.textContent = "⋮";
-  kebab.setAttribute("aria-label", `${tabLabel(tabId)}の操作`);
+  kebab.setAttribute("aria-label", t("groupPanel.rowMenuAria", { label: tabLabel(tabId) }));
   kebab.addEventListener("click", () => {
     openMenuTabId = openMenuTabId === tabId ? null : tabId;
     renderList();
@@ -190,7 +191,7 @@ function createInputRow(initialValue, onCommit, onCancel) {
   input.className = "group-row-input";
   input.maxLength = GroupRepository.NAME_MAX_LENGTH;
   input.value = initialValue;
-  input.setAttribute("aria-label", "グループ名");
+  input.setAttribute("aria-label", t("groupPanel.nameAria"));
 
   const counter = document.createElement("span");
   counter.className = "group-row-counter";
@@ -271,7 +272,7 @@ async function commitRename(tabId, value) {
     await GroupRepository.rename(tabId, value.trim());
   } catch (error) {
     // 入力欄は開いたままにして直せるようにする。
-    showError(validationMessage(error, "名称の変更に失敗しました。もう一度お試しください。"));
+    showError(validationMessage(error, t("groupPanel.errorRenameGeneric")));
     return;
   }
   editingTabId = null;
@@ -284,7 +285,7 @@ async function commitCreate(value) {
   try {
     await GroupRepository.create(value.trim());
   } catch (error) {
-    showError(validationMessage(error, "グループの作成に失敗しました。もう一度お試しください。"));
+    showError(validationMessage(error, t("groupPanel.errorCreateGeneric")));
     return;
   }
   creatingGroup = false;
@@ -296,9 +297,7 @@ async function deleteGroup(tabId) {
   openMenuTabId = null;
   const name = tabLabel(tabId);
   const count = itemCount(tabId);
-  const confirmed = window.confirm(
-    `グループ「${name}」を削除しますか？所属する項目${count}件もすべて削除されます。この操作は取り消せません。`,
-  );
+  const confirmed = window.confirm(t("groupPanel.confirmDelete", { name, count }));
   if (!confirmed) {
     renderList();
     return;
@@ -307,7 +306,7 @@ async function deleteGroup(tabId) {
   try {
     await GroupRepository.remove(tabId);
   } catch (error) {
-    showError("グループの削除に失敗しました。もう一度お試しください。");
+    showError(t("groupPanel.errorDeleteGeneric"));
     await refresh();
     return;
   }
@@ -344,7 +343,7 @@ async function applyOrder(orderedTabIds, focusTabId = null) {
     await callbacks.onTabsChanged();
   } catch (error) {
     // 画面上は並び替わったのに保存されていない状態を残さない。保存済みの順序から作り直す。
-    showError("並び順の保存に失敗しました。表示を保存済みの状態に戻します。");
+    showError(t("groupPanel.errorReorderGeneric"));
     await loadData();
     renderList();
     if (focusTabId !== null) {
@@ -503,5 +502,15 @@ export function initGroupPanel(options) {
     onReorder: handleReorder,
   });
 
-  return { open, close, isOpen: () => panelOpen };
+  return {
+    open,
+    close,
+    isOpen: () => panelOpen,
+    // 言語切替から呼ぶ。開閉状態は変えず、開いているときだけ縦リストを再描画する。
+    refresh: () => {
+      if (panelOpen) {
+        renderList();
+      }
+    },
+  };
 }

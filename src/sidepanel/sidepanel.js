@@ -9,6 +9,7 @@ import { attachDragReorder } from "./dragReorder.js";
 import { createFocusTrap } from "./focusTrap.js";
 import { isActivationKey, moveInList, reorderOffsetFromKey } from "./listReorder.js";
 import { visibleTabIndexes } from "./tabOverflow.js";
+import { applyStaticTranslations, setLanguage as setI18nLanguage, t } from "../i18n/index.js";
 
 const searchInput = document.getElementById("search-input");
 const maskToggle = document.getElementById("mask-toggle");
@@ -54,6 +55,7 @@ let selectionMode = false;
 let selectedItemIds = new Set();
 let groupChangePopoverOpen = false;
 let currentTheme = "auto";
+let currentLanguage = "ja";
 
 function currentGroupId() {
   return selectedTabId === UNASSIGNED_TAB_ID ? null : selectedTabId;
@@ -86,10 +88,10 @@ function showCopyStatus(message) {
 async function copyValue(value) {
   try {
     await navigator.clipboard.writeText(value);
-    showCopyStatus("コピーしました");
+    showCopyStatus(t("copyStatus.success"));
     return true;
   } catch (error) {
-    showCopyStatus("コピーに失敗しました");
+    showCopyStatus(t("copyStatus.failure"));
     return false;
   }
 }
@@ -120,6 +122,25 @@ function clearItemError() {
   itemErrorEl.textContent = "";
 }
 
+// ItemRepository が投げる ValidationError の field は "name" / "value" / "limit" の3種類のみ
+// （項目登録フォームの保存経路では "orderedIds" は発生しない）。groupPanel.js の
+// validationMessage と同じ「フィールド名で分岐し、フォールバックを持つ」形。
+function itemValidationMessage(error, fallbackKey) {
+  if (!(error instanceof ValidationError)) {
+    return t(fallbackKey);
+  }
+  if (error.field === "name") {
+    return t("itemForm.errorNameLength", { max: ItemRepository.NAME_MAX_LENGTH });
+  }
+  if (error.field === "value") {
+    return t("itemForm.errorValueLength", { max: ItemRepository.VALUE_MAX_LENGTH });
+  }
+  if (error.field === "limit") {
+    return t("itemForm.errorLimit");
+  }
+  return t(fallbackKey);
+}
+
 const itemFormFocusTrap = createFocusTrap(formOverlay, {
   fallbackFocus: () => addItemButton,
 });
@@ -132,7 +153,7 @@ async function renderList() {
 
   listEl.innerHTML = "";
   emptyStateEl.hidden = visibleItems.length > 0;
-  emptyStateEl.textContent = searchTerm ? "該当する項目はありません。" : "登録済みの項目はありません。";
+  emptyStateEl.textContent = searchTerm ? t("itemList.emptyFiltered") : t("itemList.empty");
 
   visibleItemsById = new Map(visibleItems.map((item) => [item.id, item]));
   for (const item of visibleItems) {
@@ -154,7 +175,7 @@ function createItemCard(item, maskEnabled) {
     checkbox.type = "checkbox";
     checkbox.className = "item-checkbox";
     checkbox.checked = selectedItemIds.has(item.id);
-    checkbox.setAttribute("aria-label", `${item.name}を選択`);
+    checkbox.setAttribute("aria-label", t("itemCard.selectAria", { name: item.name }));
     checkbox.addEventListener("change", () => {
       if (checkbox.checked) {
         selectedItemIds.add(item.id);
@@ -198,8 +219,8 @@ function createItemCard(item, maskEnabled) {
   const copyButton = document.createElement("button");
   copyButton.type = "button";
   copyButton.className = "copy-button";
-  copyButton.setAttribute("aria-label", `${item.name}をコピー`);
-  copyButton.title = "コピー";
+  copyButton.setAttribute("aria-label", t("itemCard.copyAria", { name: item.name }));
+  copyButton.title = t("itemCard.copyTitle");
   copyButton.disabled = selectionMode;
   copyButton.addEventListener("click", async (event) => {
     event.stopPropagation();
@@ -221,7 +242,7 @@ function createItemCard(item, maskEnabled) {
   kebabButton.type = "button";
   kebabButton.className = "kebab-button";
   kebabButton.textContent = "⋮";
-  kebabButton.setAttribute("aria-label", `${item.name}の操作`);
+  kebabButton.setAttribute("aria-label", t("itemCard.kebabAria", { name: item.name }));
   kebabButton.disabled = selectionMode;
   kebabButton.addEventListener("click", (event) => {
     event.stopPropagation();
@@ -236,7 +257,7 @@ function createItemCard(item, maskEnabled) {
 
     const editButton = document.createElement("button");
     editButton.type = "button";
-    editButton.textContent = "編集";
+    editButton.textContent = t("itemCard.edit");
     editButton.addEventListener("click", (event) => {
       event.stopPropagation();
       openItemMenuId = null;
@@ -246,7 +267,7 @@ function createItemCard(item, maskEnabled) {
 
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
-    deleteButton.textContent = "削除";
+    deleteButton.textContent = t("itemCard.delete");
     deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
       deleteItem(item);
@@ -262,7 +283,7 @@ function createItemCard(item, maskEnabled) {
 
 async function deleteItem(item) {
   openItemMenuId = null;
-  const confirmed = window.confirm(`「${item.name}」を削除しますか？`);
+  const confirmed = window.confirm(t("itemCard.confirmDelete", { name: item.name }));
   if (!confirmed) {
     await renderList();
     return;
@@ -275,7 +296,7 @@ async function deleteItem(item) {
 
 async function populateGroupSelect(selectField, selectedGroupId) {
   const groups = await GroupRepository.list();
-  selectField.innerHTML = '<option value="">未分類</option>';
+  selectField.innerHTML = `<option value="">${t("common.unassigned")}</option>`;
   for (const group of groups) {
     const option = document.createElement("option");
     option.value = group.id;
@@ -334,11 +355,7 @@ form.addEventListener("submit", async (event) => {
     await renderTabs();
     await renderList();
   } catch (error) {
-    if (error instanceof ValidationError) {
-      showItemError(error.message);
-    } else {
-      showItemError("保存に失敗しました。もう一度お試しください。");
-    }
+    showItemError(itemValidationMessage(error, "itemForm.errorGeneric"));
   }
 });
 
@@ -361,9 +378,15 @@ document.addEventListener("visibilitychange", () => {
 // ---- その他メニュー(テーマ設定・選択モード開始) ----
 
 const THEME_OPTIONS = [
-  { value: "auto", label: "自動" },
-  { value: "light", label: "ライト" },
-  { value: "dark", label: "ダーク" },
+  { value: "auto", labelKey: "moreMenu.themeAuto" },
+  { value: "light", labelKey: "moreMenu.themeLight" },
+  { value: "dark", labelKey: "moreMenu.themeDark" },
+];
+
+// 言語の選択肢は各言語の自称で固定表示する（表示中の言語によって訳語に変えない。spec FR-002a）。
+const LANGUAGE_OPTIONS = [
+  { value: "ja", labelKey: "moreMenu.languageJa" },
+  { value: "en", labelKey: "moreMenu.languageEn" },
 ];
 
 function applyTheme(theme) {
@@ -382,6 +405,19 @@ async function selectTheme(theme) {
   renderMoreMenu();
 }
 
+async function selectLanguage(lang) {
+  currentLanguage = lang;
+  await SettingsRepository.setLanguage(lang);
+  setI18nLanguage(lang);
+  applyStaticTranslations(document);
+  applyItemFormLabels();
+  await renderTabs();
+  await renderList();
+  groupPanel.refresh();
+  // その他メニューは開いたまま新しい言語で再表示する（spec US1 シナリオ7）。
+  renderMoreMenu();
+}
+
 function renderMoreMenu() {
   moreMenuEl.hidden = !moreMenuOpen;
   moreMenuEl.innerHTML = "";
@@ -394,19 +430,38 @@ function renderMoreMenu() {
 
   const themeLabel = document.createElement("span");
   themeLabel.className = "more-menu-label";
-  themeLabel.textContent = "テーマ";
+  themeLabel.textContent = t("moreMenu.theme");
   themeSection.appendChild(themeLabel);
 
   for (const option of THEME_OPTIONS) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "more-menu-item" + (currentTheme === option.value ? " active" : "");
-    button.textContent = option.label;
+    button.textContent = t(option.labelKey);
     button.addEventListener("click", () => selectTheme(option.value));
     themeSection.appendChild(button);
   }
 
   moreMenuEl.appendChild(themeSection);
+
+  const languageSection = document.createElement("div");
+  languageSection.className = "more-menu-section";
+
+  const languageLabel = document.createElement("span");
+  languageLabel.className = "more-menu-label";
+  languageLabel.textContent = t("moreMenu.language");
+  languageSection.appendChild(languageLabel);
+
+  for (const option of LANGUAGE_OPTIONS) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "more-menu-item" + (currentLanguage === option.value ? " active" : "");
+    button.textContent = t(option.labelKey);
+    button.addEventListener("click", () => selectLanguage(option.value));
+    languageSection.appendChild(button);
+  }
+
+  moreMenuEl.appendChild(languageSection);
 
   const divider = document.createElement("div");
   divider.className = "more-menu-divider";
@@ -415,7 +470,7 @@ function renderMoreMenu() {
   const selectButton = document.createElement("button");
   selectButton.type = "button";
   selectButton.className = "more-menu-item";
-  selectButton.textContent = "選択";
+  selectButton.textContent = t("moreMenu.select");
   selectButton.addEventListener("click", () => {
     moreMenuOpen = false;
     renderMoreMenu();
@@ -434,7 +489,7 @@ moreMenuButton.addEventListener("click", (event) => {
 
 function updateSelectionToolbar() {
   selectionToolbarEl.hidden = !selectionMode;
-  selectionCountEl.textContent = `${selectedItemIds.size}件選択中`;
+  selectionCountEl.textContent = t("selection.count", { count: selectedItemIds.size });
   selectionDeleteButton.disabled = selectedItemIds.size === 0;
   selectionGroupChangeButton.disabled = selectedItemIds.size === 0;
   selectionGroupChangePopoverEl.hidden = !groupChangePopoverOpen;
@@ -474,7 +529,7 @@ selectionDeleteButton.addEventListener("click", async () => {
     return;
   }
   const confirmed = window.confirm(
-    `選択した${selectedItemIds.size}件の項目を削除しますか？この操作は取り消せません。`,
+    t("selection.confirmDelete", { count: selectedItemIds.size }),
   );
   if (!confirmed) {
     return;
@@ -517,7 +572,7 @@ async function renderTabs() {
 
   for (const tabId of tabOrder) {
     if (tabId === UNASSIGNED_TAB_ID) {
-      tabsEl.appendChild(createTabElement(UNASSIGNED_TAB_ID, "未分類"));
+      tabsEl.appendChild(createTabElement(UNASSIGNED_TAB_ID, t("common.unassigned")));
       continue;
     }
     const group = groupsById.get(tabId);
@@ -587,9 +642,9 @@ function createPanelOpenButton(tabCount) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "tab-panel-open";
-  button.textContent = `▾ ${tabCount}`;
-  button.setAttribute("aria-label", `グループ一覧を開く（全${tabCount}件）`);
-  button.title = "グループ一覧";
+  button.textContent = t("tabs.openPanelButton", { count: tabCount });
+  button.setAttribute("aria-label", t("tabs.openPanelAria", { count: tabCount }));
+  button.title = t("tabs.openPanelTitle");
   button.disabled = selectionMode;
   button.addEventListener("click", () => groupPanel.open());
   return button;
@@ -650,9 +705,23 @@ document.addEventListener("click", (event) => {
 async function initMaskToggle() {
   const settings = await SettingsRepository.get();
   maskToggle.checked = !settings.maskEnabled;
-  // 表示切替のちらつきを防ぐため、一覧描画より前にテーマを反映する。
+  // 表示切替のちらつきを防ぐため、一覧描画より前にテーマと言語を反映する。
   currentTheme = settings.theme;
   applyTheme(currentTheme);
+  currentLanguage = settings.language;
+  setI18nLanguage(currentLanguage);
+  applyStaticTranslations(document);
+  applyItemFormLabels();
+}
+
+// {max} を含むため data-i18n-text では扱えない2つのラベル。初期化時と言語切替時に呼ぶ。
+function applyItemFormLabels() {
+  document.getElementById("item-name-label").textContent = t("itemForm.nameLabel", {
+    max: ItemRepository.NAME_MAX_LENGTH,
+  });
+  document.getElementById("item-value-label").textContent = t("itemForm.valueLabel", {
+    max: ItemRepository.VALUE_MAX_LENGTH,
+  });
 }
 
 maskToggle.addEventListener("change", async () => {

@@ -15,6 +15,7 @@
 - 項目の並び替え：カード左端の掴み手（`⠿`）からのドラッグ、またはカードにフォーカスして `Alt` + `↑` / `↓`（グループ内、検索中と選択モード中は無効）
 - テーマの自動追従（OS設定）に加え、ライト/ダークの手動固定
 - 選択モードによる複数項目の一括削除・グループ一括変更（選択中は各カードのコピー・個別メニュー操作を無効化）
+- サイドパネルの表示言語を日本語・英語から選べる（その他メニューの「言語」セクション、既定は日本語）。切り替えは再読み込みなしで即座に反映され、設定は保存される
 
 グループ名の上限は20文字（全グループパネルの縦リスト1行に収まる文字数）。
 起動時に開くタブは並び順の先頭のタブで、既定では「未分類」。よく使うグループを
@@ -38,7 +39,8 @@
 [specs/007-sidepanel-keyboard/spec.md](specs/007-sidepanel-keyboard/spec.md)（キーボード操作・フォーカス管理）、
 [specs/008-item-reorder-unification/spec.md](specs/008-item-reorder-unification/spec.md)（項目並び替え操作の統一）、
 [specs/009-item-reorder-handle/spec.md](specs/009-item-reorder-handle/spec.md)（項目カードの並び替えハンドル）、
-[specs/010-tab-overflow/spec.md](specs/010-tab-overflow/spec.md)（タブバーの横スクロール廃止と幅追従表示）を参照。
+[specs/010-tab-overflow/spec.md](specs/010-tab-overflow/spec.md)（タブバーの横スクロール廃止と幅追従表示）、
+[specs/011-sidepanel-i18n/spec.md](specs/011-sidepanel-i18n/spec.md)（サイドパネルの多言語対応）を参照。
 
 ## 開発
 
@@ -64,4 +66,5 @@ npm test
 [specs/007-sidepanel-keyboard/quickstart.md](specs/007-sidepanel-keyboard/quickstart.md)、
 [specs/008-item-reorder-unification/quickstart.md](specs/008-item-reorder-unification/quickstart.md)、
 [specs/009-item-reorder-handle/quickstart.md](specs/009-item-reorder-handle/quickstart.md)、
-[specs/010-tab-overflow/quickstart.md](specs/010-tab-overflow/quickstart.md) を参照。
+[specs/010-tab-overflow/quickstart.md](specs/010-tab-overflow/quickstart.md)、
+[specs/011-sidepanel-i18n/quickstart.md](specs/011-sidepanel-i18n/quickstart.md) を参照。
