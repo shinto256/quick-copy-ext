@@ -1,10 +1,10 @@
 id: req-000015
 version: '1.1'
 title: サイドパネルの多言語対応
-status: approved
+status: implemented
 priority: medium
 createdAt: 2026-09-04T10:48:00.078Z
-updatedAt: 2026-09-04T11:06:00.313Z
+updatedAt: 2026-09-07T02:12:57.733Z
 versionHistory:
   - version: '1.1'
     status: draft
