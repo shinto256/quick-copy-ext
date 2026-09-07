@@ -450,11 +450,12 @@ function renderMoreMenu() {
   const languageLabel = document.createElement("span");
   languageLabel.className = "more-menu-label";
   languageLabel.textContent = t("moreMenu.language");
-  languageSection.appendChild(languageLabel);
 
-  // ホバーで両方の言語名が分かるように、どちらのボタンにも全選択肢を併記したツールチップを付ける。
+  // ホバーで両方の言語名が分かるように、見出しにも全選択肢を併記したツールチップを付ける。
   // 現在の表示言語に関わらず同じ文言（自称表記の一覧）になる。
   const languageTooltip = LANGUAGE_OPTIONS.map((option) => t(option.labelKey)).join(" / ");
+  languageLabel.title = languageTooltip;
+  languageSection.appendChild(languageLabel);
 
   for (const option of LANGUAGE_OPTIONS) {
     const button = document.createElement("button");
