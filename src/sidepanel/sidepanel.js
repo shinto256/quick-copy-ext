@@ -452,11 +452,16 @@ function renderMoreMenu() {
   languageLabel.textContent = t("moreMenu.language");
   languageSection.appendChild(languageLabel);
 
+  // ホバーで両方の言語名が分かるように、どちらのボタンにも全選択肢を併記したツールチップを付ける。
+  // 現在の表示言語に関わらず同じ文言（自称表記の一覧）になる。
+  const languageTooltip = LANGUAGE_OPTIONS.map((option) => t(option.labelKey)).join(" / ");
+
   for (const option of LANGUAGE_OPTIONS) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "more-menu-item" + (currentLanguage === option.value ? " active" : "");
     button.textContent = t(option.labelKey);
+    button.title = languageTooltip;
     button.addEventListener("click", () => selectLanguage(option.value));
     languageSection.appendChild(button);
   }
