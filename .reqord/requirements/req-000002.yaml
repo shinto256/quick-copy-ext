@@ -1,10 +1,10 @@
 id: req-000002
 version: '1.0'
 title: 一覧表示・コピー機能(デフォルトマスク表示)
-status: approved
+status: implemented
 priority: high
 createdAt: 2026-08-27T07:45:39.799Z
-updatedAt: 2026-08-27T08:08:11.132Z
+updatedAt: 2026-09-07T02:40:08.811Z
 versionHistory: []
 files:
   description: requirements/req-000002/description.md

@@ -3,9 +3,9 @@ requirementId: req-000003
 title: マスク表示切替機能
 requirementVersion: '1.0'
 version: '1.1'
-status: approved
+status: implemented
 createdAt: 2026-08-27T08:11:08.365Z
-updatedAt: 2026-08-28T06:41:35.479Z
+updatedAt: 2026-09-07T02:40:17.838Z
 versionHistory:
   - version: '1.1'
     status: draft

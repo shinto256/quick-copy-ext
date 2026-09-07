@@ -3,9 +3,9 @@ requirementId: req-000002
 title: 一覧表示・コピー機能(デフォルトマスク表示)
 requirementVersion: '1.0'
 version: '1.1'
-status: approved
+status: implemented
 createdAt: 2026-08-27T08:11:06.711Z
-updatedAt: 2026-08-28T06:41:27.793Z
+updatedAt: 2026-09-07T02:40:11.879Z
 versionHistory:
   - version: '1.1'
     status: draft
