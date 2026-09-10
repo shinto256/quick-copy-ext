@@ -49,6 +49,7 @@ npm test
 
 - 名称が `Quick Copy` と表示される
 - 説明が `登録した定型文字列をワンクリックでコピーできる拡張機能` と表示される（この変更の前と同一）
+- 拡張機能のカードに警告・エラーが表示されない（FR-006 / SC-004）
 
 ## Step 4: 英語環境の表示を確認する（User Story 1 / SC-001）
 
@@ -61,6 +62,7 @@ npm test
 - 名称が `Quick Copy` と表示される（SC-007: 日本語環境と同一）
 - 説明が `Copy your registered text snippets to the clipboard with a single click.` と表示される
 - 説明に日本語の文字が1文字も含まれない
+- 拡張機能のカードに警告・エラーが表示されない（FR-006 / SC-004）
 
 ### 地域付きロケールの確認（Edge Case）
 

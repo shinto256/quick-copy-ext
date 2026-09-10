@@ -87,7 +87,7 @@ Foundational を完了した時点で振る舞いとして満たされる**。`d
 
 - [ ] T011 [US1] `_locales/en/messages.json` を新規作成し、`extName.message` に `Quick Copy`、`extDescription.message` に `Copy your registered text snippets to the clipboard with a single click.` を定義する。形式は `contracts/locale-messages-contract.md` の契約2に従う。地域付きディレクトリ（`en_US` / `en_GB`）は作らない
 - [ ] T012 [US1] `npx vitest run tests/unit/localeMessages.test.js` を実行し、(a)(b) の全テストがパスすることを確認する（VR-001〜VR-007 充足）
-- [ ] T013 [US1] `specs/013-manifest-i18n/quickstart.md` の Step 4 を実施し、英語環境で名称が `Quick Copy`、説明が英語で表示され、日本語の文字が0文字であることを確認する（SC-001 / SC-007 / SC-009）
+- [ ] T013 [US1] `specs/013-manifest-i18n/quickstart.md` の Step 4 を実施し、英語環境で名称が `Quick Copy`、説明が英語で表示され、日本語の文字が0文字であること、および拡張機能のカードに警告・エラーが表示されないことを確認する（SC-001 / SC-004 / SC-007 / SC-009 / FR-006）
 - [ ] T014 [US1] `specs/013-manifest-i18n/quickstart.md` の Step 4 の「地域付きロケールの確認」を実施し、`English (United Kingdom)` 環境でも `_locales/en/` が使われることを確認する（Edge Case）
 - [ ] T015 [US1] `_locales/en/messages.json` をコミットする
 
@@ -105,7 +105,7 @@ Foundational を完了した時点で振る舞いとして満たされる**。`d
 **実装タスクなし**: Phase 2 の T005 / T006 で振る舞いとして成立済み（`default_locale: "ja"` と
 `_locales/ja/messages.json`）。本フェーズは回帰が起きていないことの検証のみを行う
 
-- [ ] T016 [US2] `specs/013-manifest-i18n/quickstart.md` の Step 3 を実施し、日本語環境の名称と説明が T002 で記録した文字列と一致することを確認する（SC-002）
+- [ ] T016 [US2] `specs/013-manifest-i18n/quickstart.md` の Step 3 を実施し、日本語環境の名称と説明が T002 で記録した文字列と一致すること、および拡張機能のカードに警告・エラーが表示されないことを確認する（SC-002 / SC-004 / FR-006）
 - [ ] T017 [US2] `npx vitest run tests/unit/localeMessages.test.js` の VR-005 の結果を確認し、`extName` が日本語・英語で同一であることを確認する（SC-007）
 
 **Checkpoint**: US1 と US2 がともに成立

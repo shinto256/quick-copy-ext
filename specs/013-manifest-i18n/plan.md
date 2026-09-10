@@ -47,7 +47,8 @@
 
 **Scale/Scope**: User Story 3件（P1〜P3）、FR 9件、SC 9件。新規ファイル3件
 （`_locales/ja/messages.json` / `_locales/en/messages.json` / `tests/unit/localeMessages.test.js`）、
-既存ファイル変更1件（`manifest.json`）。`src/` 配下の変更は0件
+既存ファイル変更2件（`manifest.json` / `README.md`）。`README.md` は全specへのリンクを列挙する
+既存の慣例に従って本featureの `spec.md` / `quickstart.md` を追記する。`src/` 配下の変更は0件
 
 ## Constitution Check
 
@@ -88,6 +89,7 @@ specs/013-manifest-i18n/
 
 ```text
 manifest.json                     # 変更: name / description を __MSG_*__ 参照へ、default_locale を追加
+README.md                         # 変更: 仕様リンク一覧と動作確認手順一覧に本featureを追記
 
 _locales/                         # 新規ディレクトリ
 ├── ja/
