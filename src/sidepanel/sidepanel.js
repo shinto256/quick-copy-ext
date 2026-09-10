@@ -687,6 +687,7 @@ async function selectTab(groupId) {
     groupChangePopoverOpen = false;
     updateSelectionToolbar();
   }
+  await SettingsRepository.setSelectedGroupId(groupId);
   await renderTabs();
   await renderList();
 }
@@ -861,9 +862,14 @@ new ResizeObserver(() => applyTabOverflow()).observe(tabsEl);
 
 async function init() {
   await initMaskToggle();
-  // 起動時は並び順の先頭のタブを開く。既定の並び順では未分類が先頭になる。
-  const tabOrder = await GroupRepository.listTabOrder();
-  selectedTabId = tabOrder[0];
+  // 起動時は最後に選択していたグループ（未分類タブ含む）を復元する。
+  // 記憶がない、または記憶したグループが現存しない（削除済み等）場合のみ、
+  // 並び順の先頭のタブにフォールバックする（既定の並び順では未分類が先頭になる）。
+  const [tabOrder, settings] = await Promise.all([
+    GroupRepository.listTabOrder(),
+    SettingsRepository.get(),
+  ]);
+  selectedTabId = tabOrder.includes(settings.selectedGroupId) ? settings.selectedGroupId : tabOrder[0];
   await renderTabs();
   await renderList();
 }

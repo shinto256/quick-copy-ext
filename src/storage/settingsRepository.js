@@ -2,7 +2,7 @@ import { getItem, setItem } from "./storageClient.js";
 import { ValidationError } from "./errors.js";
 
 const KEY = "settings";
-const DEFAULT_SETTINGS = { maskEnabled: true, theme: "auto", language: "ja" };
+const DEFAULT_SETTINGS = { maskEnabled: true, theme: "auto", language: "ja", selectedGroupId: null };
 const VALID_THEMES = ["auto", "light", "dark"];
 const VALID_LANGUAGES = ["ja", "en"];
 
@@ -35,4 +35,9 @@ export async function setLanguage(language) {
   }
   const current = await get();
   await setItem(KEY, { ...current, language });
+}
+
+export async function setSelectedGroupId(groupId) {
+  const current = await get();
+  await setItem(KEY, { ...current, selectedGroupId: groupId });
 }
