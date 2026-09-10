@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Quick Copy",
+  "name": "__MSG_extName__",
   "version": "0.1.0",
-  "description": "登録した定型文字列をワンクリックでコピーできる拡張機能",
+  "description": "__MSG_extDescription__",
+  "default_locale": "ja",
   "permissions": ["storage", "sidePanel"],
   "action": {
     "default_icon": {

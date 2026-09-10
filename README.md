@@ -40,7 +40,8 @@
 [specs/008-item-reorder-unification/spec.md](specs/008-item-reorder-unification/spec.md)（項目並び替え操作の統一）、
 [specs/009-item-reorder-handle/spec.md](specs/009-item-reorder-handle/spec.md)（項目カードの並び替えハンドル）、
 [specs/010-tab-overflow/spec.md](specs/010-tab-overflow/spec.md)（タブバーの横スクロール廃止と幅追従表示）、
-[specs/011-sidepanel-i18n/spec.md](specs/011-sidepanel-i18n/spec.md)（サイドパネルの多言語対応）を参照。
+[specs/011-sidepanel-i18n/spec.md](specs/011-sidepanel-i18n/spec.md)（サイドパネルの多言語対応）、
+[specs/013-manifest-i18n/spec.md](specs/013-manifest-i18n/spec.md)（拡張機能名・説明の多言語対応）を参照。
 
 ## 開発
 
@@ -67,4 +68,5 @@ npm test
 [specs/008-item-reorder-unification/quickstart.md](specs/008-item-reorder-unification/quickstart.md)、
 [specs/009-item-reorder-handle/quickstart.md](specs/009-item-reorder-handle/quickstart.md)、
 [specs/010-tab-overflow/quickstart.md](specs/010-tab-overflow/quickstart.md)、
-[specs/011-sidepanel-i18n/quickstart.md](specs/011-sidepanel-i18n/quickstart.md) を参照。
+[specs/011-sidepanel-i18n/quickstart.md](specs/011-sidepanel-i18n/quickstart.md)、
+[specs/013-manifest-i18n/quickstart.md](specs/013-manifest-i18n/quickstart.md) を参照。
