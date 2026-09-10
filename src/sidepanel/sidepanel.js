@@ -447,26 +447,30 @@ function renderMoreMenu() {
   const languageSection = document.createElement("div");
   languageSection.className = "more-menu-section";
 
+  // 選択肢を常時併記すると煩雑になるため、普段は「言語」の見出しのみ表示し、
+  // 見出しをホバーした時だけ隣に選択肢（日本語/English）を表示する。
+  const languageRow = document.createElement("div");
+  languageRow.className = "more-menu-language-row";
+
   const languageLabel = document.createElement("span");
   languageLabel.className = "more-menu-label";
   languageLabel.textContent = t("moreMenu.language");
+  languageRow.appendChild(languageLabel);
 
-  // ホバーで両方の言語名が分かるように、見出しにも全選択肢を併記したツールチップを付ける。
-  // 現在の表示言語に関わらず同じ文言（自称表記の一覧）になる。
-  const languageTooltip = LANGUAGE_OPTIONS.map((option) => t(option.labelKey)).join(" / ");
-  languageLabel.title = languageTooltip;
-  languageSection.appendChild(languageLabel);
+  const languageOptions = document.createElement("div");
+  languageOptions.className = "more-menu-language-options";
 
   for (const option of LANGUAGE_OPTIONS) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "more-menu-item" + (currentLanguage === option.value ? " active" : "");
     button.textContent = t(option.labelKey);
-    button.title = languageTooltip;
     button.addEventListener("click", () => selectLanguage(option.value));
-    languageSection.appendChild(button);
+    languageOptions.appendChild(button);
   }
+  languageRow.appendChild(languageOptions);
 
+  languageSection.appendChild(languageRow);
   moreMenuEl.appendChild(languageSection);
 
   const divider = document.createElement("div");
