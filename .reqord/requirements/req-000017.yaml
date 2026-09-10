@@ -1,0 +1,27 @@
+id: req-000017
+version: '1.0'
+title: 拡張機能名・説明の多言語対応
+status: approved
+priority: medium
+createdAt: 2026-09-10T03:48:50.610Z
+updatedAt: 2026-09-10T03:50:36.159Z
+versionHistory: []
+files:
+  description: requirements/req-000017/description.md
+  supplementary: []
+successCriteria:
+  - ブラウザのUI言語が英語の環境で chrome://extensions を開くと、拡張機能の名称と説明が英語で表示される。
+  - ブラウザのUI言語が日本語の環境で chrome://extensions を開くと、拡張機能の名称と説明が日本語で表示される。
+  - 日本語・英語以外のUI言語環境では、default_locale に従い日本語の名称と説明が表示される。
+  - 拡張機能を読み込んだときに chrome://extensions に表示される警告・エラーが0件である。
+  - サイドパネル内の言語切替の動作が変わらない。既存の自動テストが全件パスする（2026-09-10時点で10ファイル・209件）。
+format:
+  type: user-story
+  userStory:
+    as: ''
+    iWant: ''
+    soThat: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []
