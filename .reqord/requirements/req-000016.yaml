@@ -1,0 +1,26 @@
+id: req-000016
+version: '1.0'
+title: グループ選択状態を最後に開いたグループで復元する
+status: approved
+priority: medium
+createdAt: 2026-09-10T02:53:41.154Z
+updatedAt: 2026-09-10T02:54:19.149Z
+versionHistory: []
+files:
+  description: requirements/req-000016/description.md
+  supplementary: []
+successCriteria:
+  - Quick Copyを閉じて再度開いたとき、閉じる直前に選択していたグループが選択状態で表示される
+  - グループ並べ替え順変更後も、復元は「最後に選択したグループ」を優先する（先頭固定にならない）
+  - 選択していたグループが削除済みの場合、先頭グループへフォールバックする
+  - 初回起動（選択履歴なし）時は先頭グループが選択される
+format:
+  type: user-story
+  userStory:
+    as: ''
+    iWant: ''
+    soThat: ''
+dependencies:
+  blockedBy: []
+  blocks: []
+  relatedTo: []
